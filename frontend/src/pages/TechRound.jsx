@@ -50,6 +50,25 @@ const TechRound = () => {
   // Store code for each problem separately
   const [codeStore, setCodeStore] = useState({});
 
+  // Real-time code syncing using SSE
+  useEffect(() => {
+    const eventSource = new EventSource(`${BACKEND_URL}/api/events`);
+    eventSource.onmessage = (event) => {
+      const { text: newCode } = JSON.parse(event.data);
+      setCode(newCode);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
+  // Update code in backend on change
+  const handleCodeChange = async (newCode) => {
+    setCode(newCode);
+    await axios.post(`${BACKEND_URL}/api/update`, { text: newCode });
+  };
+
   useEffect(() => {
     const fetchProblems = async () => {
       try {
@@ -330,7 +349,10 @@ const TechRound = () => {
             >
               <textarea
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                  handleCodeChange(e.target.value);
+                }}
                 className={`w-full h-full p-4 font-mono text-sm resize-none focus:outline-none bg-transparent ${
                   isDarkMode ? "text-gray-200" : "text-gray-800"
                 }`}

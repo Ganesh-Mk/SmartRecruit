@@ -13,6 +13,7 @@ import QuizComponent from "./pages/quizRound";
 import RecruitmentDashboard from "./pages/Dashboard";
 import HRRoundEntrance from "./pages/HRRoundEntrance";
 import HRRound from "./pages/HRRound";
+import Chat from "./pages/Chat";
 const App = () => {
   return (
     <Router>
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/techInfo" element={<TechnicalInfo />} />
         <Route path="/hrRoundEntrance" element={<HRRoundEntrance />} />
         <Route path="/hrRound/:id" element={<HRRound />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
   );

@@ -15,6 +15,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
@@ -24,6 +25,32 @@ mongoose
 
 const User = require("./models/userModel");
 
+// Real-time text update logic
+let currentText = "";
+
+app.get("/api/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // Send initial data
+  res.write(`data: ${JSON.stringify({ text: currentText })}\n\n`);
+
+  const intervalId = setInterval(() => {
+    res.write(`data: ${JSON.stringify({ text: currentText })}\n\n`);
+  }, 1000);
+
+  req.on("close", () => {
+    clearInterval(intervalId);
+  });
+});
+
+app.post("/api/update", (req, res) => {
+  currentText = req.body.text;
+  res.status(200).send("Text updated successfully");
+});
+
+// Other route imports
 const signup = require("./routes/signup");
 const login = require("./routes/login");
 const addQuiz = require("./routes/addQuiz");
@@ -35,6 +62,7 @@ const addTech = require("./routes/addTech");
 const getTech = require("./routes/getTech");
 const getUserInfo = require("./routes/getUserInfo");
 
+// Use routes
 app.use(signup);
 app.use(login);
 app.use(addQuiz);
@@ -46,11 +74,13 @@ app.use(addTech);
 app.use(getTech);
 app.use(getUserInfo);
 
+// Test route for users
 app.get("/", async (req, res) => {
   const users = await User.find();
   res.json(users);
 });
 
+// Server setup
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
