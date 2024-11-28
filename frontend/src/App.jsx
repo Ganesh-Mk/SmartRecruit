@@ -11,6 +11,8 @@ import HRRoundInfo from "./pages/HrRoundInfo";
 import TechRound from "./pages/TechRound";
 import QuizComponent from "./pages/quizRound";
 import RecruitmentDashboard from "./pages/Dashboard";
+import HRRoundEntrance from "./pages/HRRoundEntrance";
+import HRRound from "./pages/HRRound";
 const App = () => {
   return (
     <Router>
@@ -28,10 +30,11 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/techRound" element={<TechRound />} />
         <Route path="/techInfo" element={<TechnicalInfo />} />
+        <Route path="/hrRoundEntrance" element={<HRRoundEntrance />} />
+        <Route path="/hrRound/:id" element={<HRRound />} />
       </Routes>
     </Router>
   );
 };
-
 
 export default App;
