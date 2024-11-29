@@ -41,8 +41,8 @@ export default function HRRoundInfo() {
       ? "Aptitude Test with Reasoning"
       : "Technical Test";
     const testLink = aptitudeDuration
-      ? "https://example.com/aptitude-test-link"
-      : "https://example.com/technical-test-link";
+      ? "http://localhost:5173/quizRound"
+      : "http://localhost:5173/techRound";
     const subject = `${testType} Invitation for ${companyName}`;
 
     // Loop through candidateData, which contains objects with name and email
