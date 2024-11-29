@@ -43,7 +43,6 @@ const QuizComponent = () => {
         const response = await axios.get(`${BACKEND_URL}/getQuiz`, {
           params: { userId: localStorage.getItem("userId") },
         });
-        console.log(response);
         setExistingQuizzes(response.data);
         setSubmitted(true);
         setLoading(false);
@@ -85,19 +84,13 @@ const QuizComponent = () => {
       const user = response.data;
       const passingMarks = user.aptitudePassingMarks;
 
-      console.log(
-        `User's passing marks: ${passingMarks}, Your score: ${score}`
-      );
-
       // Add email to aptitudePassesCandidates array if passed
       const updateResponse = await axios.post(`${BACKEND_URL}/updateUser`, {
         userId,
         userEmail,
-        passingMarks : score,
+        passingMarks: score,
       });
-      console.log(updateResponse.data); // "User updated successfully"
 
-      console.log(`Quiz completed! Your score: ${score}`);
       setSubmitted(false);
     } catch (error) {
       console.error("Error submitting quiz:", error);

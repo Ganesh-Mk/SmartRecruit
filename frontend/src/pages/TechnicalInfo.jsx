@@ -61,7 +61,6 @@ export default function TechnicalInfo() {
     fetch(`${BACKEND_URL}/generateTech`)
       .then((response) => response.json())
       .then((data) => {
-        console.log("data: ", data);
         setPreGeneratedProblems(data);
         setLoader(false);
       })
@@ -75,12 +74,10 @@ export default function TechnicalInfo() {
 
   const getAlreadyGeneratedProblems = () => {
     setLoader(true);
-    console.log("clicked");
     // Simulated fetch
     fetch(`${BACKEND_URL}/getTech`)
       .then((response) => response.json())
       .then((data) => {
-        console.log("data: ", data);
         setExistingProblems(data);
         setLoader(false);
       })
@@ -126,9 +123,7 @@ export default function TechnicalInfo() {
         }
         return response.json();
       })
-      .then((data) => {
-        console.log("Tech entries submitted successfully:", data);
-      })
+      .then((data) => {})
       .catch((error) => {
         console.error("Error submitting tech entries:", error);
       });

@@ -61,6 +61,7 @@ const generateTech = require("./routes/generateTech");
 const addTech = require("./routes/addTech");
 const getTech = require("./routes/getTech");
 const getUserInfo = require("./routes/getUserInfo");
+const checkTechSolution = require("./routes/checkTechSolution");
 
 // Use routes
 app.use(signup);
@@ -73,6 +74,7 @@ app.use(generateTech);
 app.use(addTech);
 app.use(getTech);
 app.use(getUserInfo);
+app.use(checkTechSolution);
 
 // Test route for users
 app.get("/", async (req, res) => {

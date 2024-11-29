@@ -5,7 +5,6 @@ const User = require("../models/userModel");
 
 router.get("/getQuiz", async (req, res) => {
   const { userId } = req.query;
-  console.log("get quiz userid : ", userId);
 
   try {
     let quizzes;
@@ -17,7 +16,6 @@ router.get("/getQuiz", async (req, res) => {
         return res.status(404).send("User not found");
       }
       quizzes = user.allAptitudes; // Access the user's allAptitudes array
-      console.log("User's allAptitudes: ", quizzes);
     } else {
       // If userId is not provided, return all quizzes
       quizzes = await Quiz.find();
@@ -28,8 +26,6 @@ router.get("/getQuiz", async (req, res) => {
       quiz.id = quiz._id;
       return quiz;
     });
-
-    console.log("Modified quizzes:", modifiedQuizzes);
 
     res.status(200).json(modifiedQuizzes);
   } catch (err) {

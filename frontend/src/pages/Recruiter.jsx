@@ -30,12 +30,11 @@ const RecruiterInfo = () => {
       companyName,
       jobrole,
       date: dayjs(date).format("DD MMM YYYY"), // Format date as "DD MMM YYYY"
-      startTime: startTime ? dayjs(`${date}T${startTime}`).format("HH:mm") : null, // Format startTime as "HH:mm"
+      startTime: startTime
+        ? dayjs(`${date}T${startTime}`).format("HH:mm")
+        : null, // Format startTime as "HH:mm"
       endTime: endTime ? dayjs(`${date}T${endTime}`).format("HH:mm") : null, // Format endTime as "HH:mm"
     };
-
-    console.log(data);
-    
 
     try {
       const response = await axios.post(`${BACKEND_URL}/updateUser`, data, {
@@ -43,10 +42,7 @@ const RecruiterInfo = () => {
       });
 
       if (response.status === 200) {
-        console.log("response: ",response);
-        
-        alert("Interview time scheduled successfully!");
-        localStorage.setItem("companyName",companyName);
+        localStorage.setItem("companyName", companyName);
         localStorage.setItem("jobRole", jobrole);
         localStorage.setItem("startTime", startTime);
         localStorage.setItem("endTime", endTime);
@@ -60,8 +56,7 @@ const RecruiterInfo = () => {
         setEndTime(null);
         setDate(null);
 
-        navigate("/candidateUpload")
-        
+        navigate("/candidateUpload");
       } else {
         alert("Failed to schedule interview time");
       }

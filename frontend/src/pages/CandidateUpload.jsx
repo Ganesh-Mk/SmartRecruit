@@ -64,9 +64,6 @@ const CandidateUpload = () => {
 
   const handleSubmit = () => {
     //logic to send candidateData to a backend API
-    console.log("Submitting candidate data:", candidateData);
-    console.log("Submitting candidate emails:", candidateEmails);
-    console.log("name with email :", candidateData);
 
     localStorage.setItem("candidateEmails", JSON.stringify(candidateEmails));
     const candidateDataString = JSON.stringify(candidateData);

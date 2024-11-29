@@ -5,8 +5,7 @@ const User = require("../models/userModel");
 
 router.post("/addQuiz", async (req, res) => {
   const { userId, questions } = req.body; // Accept userId and an array of questions
-  console.log("Received questions:",userId,  questions);
-  
+
   try {
     // Map questions to the required quiz format
     const quizzesToSave = questions.map((quiz) => ({
@@ -49,4 +48,4 @@ router.post("/addQuiz", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = router;

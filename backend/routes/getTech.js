@@ -4,8 +4,6 @@ const User = require("../models/userModel"); // User model to fetch tech problem
 
 router.get("/getTech", async (req, res) => {
   const { userId } = req.query; // Get the userId from query parameters
-  console.log(userId);
-  
 
   try {
     if (userId) {
@@ -35,12 +33,10 @@ router.get("/getTech", async (req, res) => {
     }
   } catch (err) {
     console.error("Error fetching tech problems:", err);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Something went wrong while fetching tech problems.",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while fetching tech problems.",
+    });
   }
 });
 

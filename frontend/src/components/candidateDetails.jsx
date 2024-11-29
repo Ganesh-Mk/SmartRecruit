@@ -11,7 +11,7 @@ const candidateDetails = () => {
     name: "",
     email: "",
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +27,7 @@ const candidateDetails = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate("/demo")
+    navigate("/demo");
 
     // let formErrors = {};
     // if (!formData.name.trim()) {
@@ -43,7 +43,7 @@ const candidateDetails = () => {
     //   setErrors(formErrors);
     // } else {
     //   // Handle valid form submission
-    //   console.log("Form Submitted:", formData);
+    //   ("Form Submitted:", formData);
     //   alert(`Welcome, ${formData.name}!`);
     //   // Reset form
     //   setFormData({
@@ -109,7 +109,7 @@ const candidateDetails = () => {
           </div>
 
           <button
-          onClick={handleSubmit}
+            onClick={handleSubmit}
             type="submit"
             className="w-full py-3 px-6 text-lg text-white font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >

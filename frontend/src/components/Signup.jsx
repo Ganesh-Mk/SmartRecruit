@@ -14,15 +14,12 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = { name, email, password };
-    console.log(name, email, password);
 
     try {
       const response = await axios.post(`${BACKEND_URL}/signup`, formData);
 
       // Handle success
       if (response.status === 200) {
-        console.log("Successfully signed up");
-
         // Store the returned id and other data in localStorage
         localStorage.setItem("email", email);
         localStorage.setItem("userId", response.data.id);
@@ -35,7 +32,6 @@ const Signup = () => {
         navigate("/");
       }
     } catch (error) {
-      console.log("Signup failed", error);
       alert("Error: Unable to sign up!");
     }
   };

@@ -5,8 +5,6 @@ const User = require("../models/userModel");
 // Route to get user information by userId
 router.get("/getUserInfo/:userId", async (req, res) => {
   const { userId } = req.params;
-  console.log("User ID:", userId);
-  
 
   try {
     // Find the user by userId
