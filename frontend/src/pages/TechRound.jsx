@@ -47,7 +47,7 @@ const TechRound = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitRunning, setSubmitIsRunning] = useState(false);
   const [error, setError] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(true); 
   const [loading, setLoading] = useState(true);
   const [techSolvedArr, setTechSolvedArr] = useState([]);
   const [totalTime, setTotalTime] = useState(0);

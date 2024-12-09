@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
   },
   techFailedCandidates: {
     type: [String], // Array of email strings of users who passed the aptitude test
-    default: [],
+    default: [], 
   },
 });
 
