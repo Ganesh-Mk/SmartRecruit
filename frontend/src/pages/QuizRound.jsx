@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import sendProgressEmail from "../components/NextroundEmail"; // Ensure this path is correct
+import sendProgressEmail from "../components/NextroundEmail";
 import sendRejectionEmail from "../components/RejectionEmail";
 
 const QuizComponent = () => {
@@ -18,11 +18,16 @@ const QuizComponent = () => {
 
   const [existingQuizzes, setExistingQuizzes] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [score, setScore] = useState(0); // Track user's score
+  const [score, setScore] = useState(0);
   const [companyName, setCompanyName] = useState(
     localStorage.getItem("companyName") || ""
   );
-  const [candidatesEmail, setCandidatesEmails] = useState([])
+  const [candidatesEmail, setCandidatesEmails] = useState([]);
+  const [totalTime, setTotalTime] = useState(0);
+  
+  // New state for timer
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -42,11 +47,11 @@ const QuizComponent = () => {
         }
   
         const response = await axios.get(`${BACKEND_URL}/getUserInfo/${userId}`);
-        console.log("Dashboard data:", response.data);
-  
-        // Extract only emails from candidateData
+        
+        setTotalTime(response.data.roundDurations.aptitude);
+        
         const emails = response.data.candidateData?.map((candidate) => candidate.email) || [];
-        setCandidatesEmails(emails); // Assuming you have a state like setCandidatesEmails
+        setCandidatesEmails(emails);
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -55,11 +60,32 @@ const QuizComponent = () => {
     fetchUserInfo();
   }, []);
 
+  // Timer logic
+  useEffect(() => {
+    let timer;
+    if (timerActive && timeRemaining > 0) {
+      timer = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleQuizSubmit(); // Auto submit when time is up
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (timeRemaining === 0 && timerActive) {
+      handleQuizSubmit();
+    }
+
+    return () => clearInterval(timer);
+  }, [timerActive, timeRemaining]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setScore(0); // Reset score before starting the quiz
+    setScore(0);
 
-    const candidateData = candidatesEmail
+    const candidateData = candidatesEmail;
 
     const candidateExists = candidateData.some(
       (candidate) => candidate === userDetails.email
@@ -71,10 +97,13 @@ const QuizComponent = () => {
         const response = await axios.get(`${BACKEND_URL}/getQuiz`, {
           params: { userId: localStorage.getItem("userId") },
         });
-        console.log(response);
         setExistingQuizzes(response.data);
         setSubmitted(true);
         setLoading(false);
+
+        // Start timer when quiz is fetched
+        setTimeRemaining(totalTime * 60); // Convert minutes to seconds
+        setTimerActive(true);
       } catch (err) {
         setError("Failed to fetch quiz. Please try again.", err);
         setLoading(false);
@@ -90,21 +119,21 @@ const QuizComponent = () => {
       [quizId]: selectedOption,
     }));
 
-    // Check if the selected answer matches the correct answer
     const currentQuiz = existingQuizzes[quizId];
     if (currentQuiz && currentQuiz.ans === selectedOption) {
       setScore((prevScore) => prevScore + 1);
     } else if (
       currentQuiz &&
-      selectedAnswers[quizId] === currentQuiz.ans // If previously correct, subtract the score
+      selectedAnswers[quizId] === currentQuiz.ans
     ) {
       setScore((prevScore) => prevScore - 1);
     }
   };
 
   const handleQuizSubmit = async () => {
+    setTimerActive(false); // Stop the timer
     const userId = localStorage.getItem("userId");
-    const userEmail = userDetails.email; // User's email
+    const userEmail = userDetails.email;
 
     if (!userEmail) {
       setError("Email is required to send the rejection email.");
@@ -116,11 +145,6 @@ const QuizComponent = () => {
       const user = response.data;
       const passingMarks = user.aptitudePassingMarks;
 
-      console.log(
-        `User's passing marks: ${passingMarks}, Your score: ${score}`
-      );
-
-      // Update backend with quiz results
       await axios.post(`${BACKEND_URL}/updateUser`, {
         userId,
         userEmail,
@@ -128,8 +152,6 @@ const QuizComponent = () => {
       });
 
       if (passingMarks <= score) {
-        console.log("USer email : ", userDetails.email);
-        
         const templateParams = {
           candidateName: userDetails.name,
           roundName: "Technical Round",
@@ -141,14 +163,10 @@ const QuizComponent = () => {
 
         try {
           await sendProgressEmail(templateParams);
-          console.log("Email sent successfully!");
         } catch (emailError) {
           console.error("Failed to send email:", emailError);
         }
       } else {
-
-        console.log("USer email : ", userDetails.email);
-
         const templateParams = {
           candidateName: userDetails.name,
           roundName: "Technical Round",
@@ -158,17 +176,22 @@ const QuizComponent = () => {
 
         try {
           await sendRejectionEmail(templateParams);
-          console.log("Email sent successfully!");
         } catch (emailError) {
           console.error("Failed to send email:", emailError);
         }
       }
 
-      console.log(`Quiz completed! Your score: ${score}`);
       setSubmitted(false);
     } catch (error) {
       console.error("Error submitting quiz:", error);
     }
+  };
+
+  // Format time to MM:SS
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   const renderUserDetailsForm = () => (
@@ -224,9 +247,20 @@ const QuizComponent = () => {
 
   const renderQuizzes = () => (
     <div className="w-full max-w-2xl mx-auto bg-white shadow-md rounded-lg p-6 space-y-6">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Quiz Questions
-      </h2>
+      {/* Timer Display */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Quiz Questions
+        </h2>
+        <div 
+          className={`text-xl font-bold px-4 py-2 rounded-full ${
+            timeRemaining <= 60 ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
+          }`}
+        >
+          Time Remaining: {formatTime(timeRemaining)}
+        </div>
+      </div>
+
       {error && (
         <div
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +8,8 @@ const RoundSelection = () => {
     technical: false,
     hrRound: false,
   });
+
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
   const [roundDurations, setRoundDurations] = useState({
     aptitude: "30", // Default duration
@@ -38,6 +41,17 @@ const RoundSelection = () => {
   };
 
   const handleSubmit = () => {
+    try {
+      const response = axios.post(`${BACKEND_URL}/updateUser`, {
+        userId: localStorage.getItem("userId"),
+        roundDurations,
+      })
+
+      console.log("Sucessfully updated round durations in DB", response);
+    } catch (error) {
+      console.error("Error updating round durations:", error);
+      
+    }
     if (selectedRounds.aptitude === true) {
       localStorage.setItem("aptitude", true);
       localStorage.setItem("aptitudeDuration", roundDurations.aptitude || "0");

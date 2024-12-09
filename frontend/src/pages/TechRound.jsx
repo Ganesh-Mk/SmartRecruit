@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Play,
   AlertCircle,
@@ -6,6 +6,7 @@ import {
   Moon,
   ChevronLeft,
   ChevronRight,
+  Clock,
 } from "lucide-react";
 import axios from "axios";
 import sendHREmail from "../components/HRemail";
@@ -49,6 +50,12 @@ const TechRound = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
   const [techSolvedArr, setTechSolvedArr] = useState([]);
+  const [totalTime, setTotalTime] = useState(0);
+
+  // Timer-related states
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [isTimeUp, setIsTimeUp] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
 
   // Store code for each problem separately
   const [codeStore, setCodeStore] = useState({});
@@ -66,12 +73,73 @@ const TechRound = () => {
     };
   }, []);
 
-  const updateUser = async () => {
+  // Fetch user info and start timer
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("No userId found in localStorage.");
+          return;
+        }
 
-    let userEmail = prompt("Enter ur email");
+        const response = await axios.get(
+          `${BACKEND_URL}/getUserInfo/${userId}`
+        );
+
+        const roundDuration = response.data.roundDurations.technical;
+        setTotalTime(roundDuration);
+        
+        // Automatically start the timer when duration is set
+        if (roundDuration > 0 && !timerStarted) {
+          setRemainingTime(roundDuration * 60);
+          setTimerStarted(true);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [timerStarted]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    let timerId;
+    if (remainingTime > 0 && !isTimeUp && timerStarted) {
+      timerId = setInterval(() => {
+        setRemainingTime((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerId);
+            setIsTimeUp(true);
+            updateUser(); // Automatically update user when time is up
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timerId) clearInterval(timerId);
+    };
+  }, [remainingTime, isTimeUp, timerStarted]);
+
+  // Format time to MM:SS
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Update user when time is up or all problems solved
+  const updateUser = async () => {
+    let userEmail = prompt("Enter your email");
 
     const templateParams = {
-      jobRole : localStorage.getItem("jobrole"),
+      jobRole: localStorage.getItem("jobrole"),
       linkForNextRound: "http://localhost:5173/hrRoundEntrance",
       companyName: localStorage.getItem("companyName"),
       to_email: userEmail,
@@ -84,9 +152,8 @@ const TechRound = () => {
       console.error("Failed to send email:", emailError);
     }
 
-
     try {
-      const response = await axios.post(
+      await axios.post(
         `${BACKEND_URL}/updateUser`,
         {
           userEmail: userEmail,
@@ -108,6 +175,7 @@ const TechRound = () => {
     await axios.post(`${BACKEND_URL}/api/update`, { text: newCode });
   };
 
+  // Fetch problems for the technical round
   useEffect(() => {
     const fetchProblems = async () => {
       try {
@@ -133,6 +201,7 @@ const TechRound = () => {
     fetchProblems();
   }, []);
 
+  // Run code in selected language
   const handleRunCode = async () => {
     setIsRunning(true);
     setError(null);
@@ -148,6 +217,7 @@ const TechRound = () => {
     }
   };
 
+  // Format problem description with color-coded sections
   const formatDescription = (desc) => {
     return desc.split("\n").map((line, index) => {
       const isExample = line.trim().toLowerCase().startsWith("example");
@@ -198,6 +268,7 @@ const TechRound = () => {
     });
   };
 
+  // Handle changing between problems
   const handleProblemChange = (newIndex) => {
     // Save current code to store
     setCodeStore((prev) => ({
@@ -216,11 +287,13 @@ const TechRound = () => {
     setError(null);
   };
 
+  // Toggle dark/light mode
   useEffect(() => {
     document.body.classList.toggle("dark", isDarkMode);
     document.body.classList.toggle("light", !isDarkMode);
   }, [isDarkMode]);
 
+  // Loading and no problems states
   if (loading) {
     return (
       <div
@@ -245,8 +318,10 @@ const TechRound = () => {
     );
   }
 
+  // Get current problem
   const currentProblem = problems[currentProblemIndex];
 
+  // Submit solution for current problem
   const handleSubmit = async () => {
     setSubmitIsRunning(true);
     try {
@@ -347,20 +422,36 @@ const TechRound = () => {
               </button>
             </div>
 
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-3 rounded-full shadow-lg transition-all duration-300 ${
-                isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-yellow-400"
-                  : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-              }`}
-            >
-              {isDarkMode ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
+            <div className="flex items-center space-x-2">
+              {/* Timer Display */}
+              <div
+                className={`flex items-center p-2 rounded-lg ${
+                  isTimeUp
+                    ? "bg-red-500/80 text-white"
+                    : isDarkMode
+                    ? "bg-gray-700/80 text-gray-200"
+                    : "bg-gray-200/80 text-gray-800"
+                }`}
+              >
+                <Clock className="mr-2 h-5 w-5" />
+                <span className="font-mono font-bold">{formatTime(remainingTime)}</span>
+              </div>
+
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-3 rounded-full shadow-lg transition-all duration-300 ${
+                  isDarkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-yellow-400"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+              >
+                {isDarkMode ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <h1
