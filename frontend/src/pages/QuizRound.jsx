@@ -334,6 +334,7 @@ const QuizComponent = () => {
           tech_link: `${FRONTEND_URL}/techRound`,
           company_name: companyName,
           to_email: userEmail,
+          user_id: userid,
           recipient_address: email,
         };
 

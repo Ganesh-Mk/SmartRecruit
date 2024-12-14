@@ -4,7 +4,9 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const cors = require("cors");
 
-app.use(cors());
+// Create a Set to store active clients for Server-Sent Events (SSE)
+const clients = new Set();
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -33,28 +35,44 @@ const User = require("./models/userModel");
 let currentText = "";
 
 app.get("/api/events", (req, res) => {
+  // Set headers for Server-Sent Events
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  // Send initial data
+  // Send initial state
   res.write(`data: ${JSON.stringify({ text: currentText })}\n\n`);
 
-  const intervalId = setInterval(() => {
-    res.write(`data: ${JSON.stringify({ text: currentText })}\n\n`);
-  }, 1000);
+  // Add this client to the set
+  clients.add(res);
 
+  // Remove client when connection closes
   req.on("close", () => {
-    clearInterval(intervalId);
+    clients.delete(res);
   });
 });
 
 app.post("/api/update", (req, res) => {
-  currentText = req.body.text;
+  const { text, clientId } = req.body;
+
+  // Only update if text has actually changed
+  if (text !== currentText) {
+    currentText = text;
+
+    // Broadcast to all clients except the sender
+    clients.forEach((client) => {
+      if (client !== res) {
+        client.write(
+          `data: ${JSON.stringify({ text, excludeClientId: clientId })}\n\n`
+        );
+      }
+    });
+  }
+
   res.status(200).send("Text updated successfully");
 });
 
-// Other route imports
+// Route imports
 const signup = require("./routes/signup");
 const login = require("./routes/login");
 const addQuiz = require("./routes/addQuiz");
@@ -88,7 +106,6 @@ app.get("/", async (req, res) => {
     const users = await User.find();
     res.json(users);
   } catch (error) {
-    res.send("Error, check console");
     console.error("Error fetching users:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }

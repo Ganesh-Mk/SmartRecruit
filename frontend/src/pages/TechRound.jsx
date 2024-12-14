@@ -267,6 +267,7 @@ const TechRound = () => {
   const [passingMarks, setpassingMarks] = useState("");
 
   const [testCaseResults, setTestCaseResults] = useState([]);
+  const [clientId] = useState(() => Math.random().toString(36).substring(7));
 
   const [showCheatingModal, setShowCheatingModal] = useState(false);
 
@@ -455,20 +456,27 @@ const TechRound = () => {
   // Real-time code syncing using SSE
   useEffect(() => {
     const eventSource = new EventSource(`${BACKEND_URL}/api/events`);
+
     eventSource.onmessage = (event) => {
-      const { text: newCode } = JSON.parse(event.data);
-      setCode(newCode);
+      const { text: newCode, excludeClientId } = JSON.parse(event.data);
+
+      // Only update if not from the same client
+      if (excludeClientId !== clientId) {
+        setCode(newCode);
+      }
     };
 
     return () => {
       eventSource.close();
     };
   }, []);
-
   // Update code in backend on change
   const handleCodeChange = async (newCode) => {
     setCode(newCode);
-    await axios.post(`${BACKEND_URL}/api/update`, { text: newCode });
+    await axios.post(`${BACKEND_URL}/api/update`, {
+      text: newCode,
+      clientId,
+    });
   };
 
   useEffect(() => {

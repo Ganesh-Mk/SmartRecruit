@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Play,
   AlertCircle,
@@ -62,16 +62,24 @@ const Chat = ({ userType = "candidate" }) => {
   // Store code for each problem separately
   const [codeStore, setCodeStore] = useState({});
 
+  const [clientId] = useState(() => Math.random().toString(36).substring(7));
+
   // Real-time code and chat syncing using SSE
   useEffect(() => {
     const codeEventSource = new EventSource(`${BACKEND_URL}/api/events`);
     const chatEventSource = new EventSource(`${BACKEND_URL}/api/chat-events`);
 
+    // Code Event Source
     codeEventSource.onmessage = (event) => {
-      const { text: newCode } = JSON.parse(event.data);
-      setCode(newCode);
+      const { text: newCode, excludeClientId } = JSON.parse(event.data);
+
+      // Only update if not from the same client
+      if (excludeClientId !== clientId) {
+        setCode(newCode);
+      }
     };
 
+    // Chat Event Source
     chatEventSource.onmessage = (event) => {
       const { messages } = JSON.parse(event.data);
       setChatMessages(messages);
@@ -81,12 +89,15 @@ const Chat = ({ userType = "candidate" }) => {
       codeEventSource.close();
       chatEventSource.close();
     };
-  }, []);
+  }, [clientId]);
 
   // Update code in backend on change
   const handleCodeChange = async (newCode) => {
     setCode(newCode);
-    await axios.post(`${BACKEND_URL}/api/update`, { text: newCode });
+    await axios.post(`${BACKEND_URL}/api/update`, {
+      text: newCode,
+      clientId,
+    });
   };
 
   // Send chat message
