@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, ArrowRight } from "lucide-react";
 
@@ -6,8 +6,10 @@ function HRRoundEntrance() {
   const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const[candidateEmail, setCandidateEmail] = useState("");
 
   const submitHandler = () => {
+    localStorage.setItem("candidateEmailForMeet", candidateEmail);
     if (input && input.includes("@")) {
       navigate(`/hrRound/${input}`);
     }
@@ -40,6 +42,24 @@ function HRRoundEntrance() {
               }`}
           />
           <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          
+        </div>
+        <div className="relative mt-2">
+          <input
+            type="email"
+            value={candidateEmail}
+            onChange={(e) => setCandidateEmail(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter your email"
+            className={`w-full pl-12 pr-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 
+              ${
+                candidateEmail && input.includes("@")
+                  ? "border-green-500 focus:ring-green-300"
+                  : "border-gray-300 focus:ring-blue-300"
+              }`}
+          />
+          <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          
         </div>
 
         <button
