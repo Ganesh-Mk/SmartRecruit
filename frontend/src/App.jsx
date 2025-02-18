@@ -16,6 +16,7 @@ import HRRound from "./pages/HRRound.jsx";
 import Chat from "./pages/Chat";
 import AllJobsDisplay from "./pages/AllJobs";
 
+import JobApplication from "./pages/JobApplication";
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/hrRoundEntrance" element={<HRRoundEntrance />} />
         <Route path="/hrRound/:id" element={<HRRound />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/jobApplication/:jobId" element={<JobApplication />} />
       </Routes>
     </Router>
   );

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Calendar, Briefcase, Clock, Users, Search, ExternalLink } from "lucide-react";
 
 const AllJobsDisplay = () => {
   const [jobs, setJobs] = useState([]);
+  const navigate = useNavigate();
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -27,6 +29,10 @@ const AllJobsDisplay = () => {
 
     fetchJobs();
   }, [BACKEND_URL]);
+
+  const handleApply = (jobId) => {
+    navigate(`/jobApplication/${jobId}`);
+  };
 
   useEffect(() => {
     const results = jobs.filter(job =>
@@ -118,12 +124,12 @@ const AllJobsDisplay = () => {
       "bg-blue-500", "bg-purple-500", "bg-green-500", "bg-yellow-500",
       "bg-pink-500", "bg-indigo-500", "bg-red-500", "bg-teal-500"
     ];
-    
+
     let hash = 0;
     for (let i = 0; i < companyName.length; i++) {
       hash = companyName.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     return colors[Math.abs(hash) % colors.length];
   };
 
@@ -135,7 +141,7 @@ const AllJobsDisplay = () => {
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
       <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Available Job Opportunities</h1>
-      
+
       <motion.div
         className="max-w-xl mx-auto mb-12 relative"
         variants={searchBarVariants}
@@ -159,10 +165,10 @@ const AllJobsDisplay = () => {
           {filteredJobs.length === 0 && "No jobs found matching your search"}
         </motion.p>
       </motion.div>
-      
+
       <AnimatePresence>
         {filteredJobs.length > 0 && (
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             variants={containerVariants}
             initial="hidden"
@@ -212,6 +218,7 @@ const AllJobsDisplay = () => {
                     className="mt-4 w-full py-3 bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center"
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
+                    onClick={() => handleApply(job._id)}
                   >
                     <span className="mr-2">Apply Now</span>
                     <ExternalLink className="w-4 h-4" />

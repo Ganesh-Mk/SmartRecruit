@@ -73,6 +73,8 @@ const createJob = require("./routes/createJob");
 const updateJob = require("./routes/updateJob");
 const deleteJob = require("./routes/deleteJob");
 const allUser = require("./routes/allUser");
+const getJob = require("./routes/getJob");
+const scanResume = require("./routes/scanResume");
 
 // Use routes
 app.use(signup);
@@ -93,6 +95,8 @@ app.use(createJob);
 app.use(updateJob);
 app.use(deleteJob);
 app.use(allUser);
+app.use(getJob);
+app.use(scanResume);
 
 // Test route for users
 app.get("/", async (req, res) => {
