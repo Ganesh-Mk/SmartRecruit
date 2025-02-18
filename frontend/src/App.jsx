@@ -14,6 +14,7 @@ import RecruitmentDashboard from "./pages/Dashboard";
 import HRRoundEntrance from "./pages/HRRoundEntrance";
 import HRRound from "./pages/HRRound.jsx";
 import Chat from "./pages/Chat";
+import JobApplication from "./pages/JobApplication";
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/hrRoundEntrance" element={<HRRoundEntrance />} />
         <Route path="/hrRound/:id" element={<HRRound />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/jobApplication" element={<JobApplication />} />
       </Routes>
     </Router>
   );
