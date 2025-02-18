@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-// import { ArrowRight } from "lucide-react";
 
 const MainPage = () => {
   const [isEmail, setisEmail] = useState("");

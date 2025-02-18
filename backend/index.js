@@ -68,6 +68,12 @@ const getUserInfo = require("./routes/getUserInfo");
 const checkTechSolution = require("./routes/checkTechSolution");
 const cheatingDetected = require("./routes/cheatingDetected");
 
+const allJob = require("./routes/allJob");
+const createJob = require("./routes/createJob");
+const updateJob = require("./routes/updateJob");
+const deleteJob = require("./routes/deleteJob");
+const allUser = require("./routes/allUser");
+
 // Use routes
 app.use(signup);
 app.use(login);
@@ -81,6 +87,12 @@ app.use(getTech);
 app.use(getUserInfo);
 app.use(checkTechSolution);
 app.use(cheatingDetected);
+
+app.use(allJob);
+app.use(createJob);
+app.use(updateJob);
+app.use(deleteJob);
+app.use(allUser);
 
 // Test route for users
 app.get("/", async (req, res) => {
