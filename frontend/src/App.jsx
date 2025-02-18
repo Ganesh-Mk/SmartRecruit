@@ -14,6 +14,8 @@ import RecruitmentDashboard from "./pages/Dashboard";
 import HRRoundEntrance from "./pages/HRRoundEntrance";
 import HRRound from "./pages/HRRound.jsx";
 import Chat from "./pages/Chat";
+import AllJobsDisplay from "./pages/AllJobs";
+
 
 const App = () => {
   return (
@@ -25,6 +27,7 @@ const App = () => {
         <Route path="/technicalInfo" element={<TechnicalInfo />} />
         <Route path="/hrInfo" element={<HRRoundInfo />} />
         <Route path="/candidateUpload" element={<CandidateUpload />} />
+        <Route path="/jobs" element={<AllJobsDisplay />} />
         <Route path="/roundSelection" element={<RoundSelection />} />
         <Route path="/quizRound" element={<QuizComponent />} />
         <Route path="/dashboard" element={<RecruitmentDashboard />} />

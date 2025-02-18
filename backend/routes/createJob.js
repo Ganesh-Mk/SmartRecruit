@@ -4,12 +4,16 @@ const Job = require("../models/jobModel");
 
 router.post("/createJob", async (req, res) => {
   try {
-    const { userId, jobRole, companyName, desc, deadline } = req.body;
-    if (!userId || !jobRole || !companyName || !desc || !deadline) {
+    console.log(req.body);
+    
+    const { userId, jobRole, companyName, description, deadline } = req.body;
+    console.log("Hello :  -",userId, jobRole, companyName, description, deadline);
+    
+    if (!userId || !jobRole || !companyName || !description || !deadline) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const newJob = new Job({ userId, jobRole, companyName, desc, deadline });
+    const newJob = new Job({ userId, jobRole, companyName, description, deadline });
     await newJob.save();
 
     res.status(201).json({ message: "Job created successfully", job: newJob });

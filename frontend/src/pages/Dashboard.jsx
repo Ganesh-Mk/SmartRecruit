@@ -11,9 +11,117 @@ import {
   Calendar,
   Clock,
   ChevronDown,
+  Plus,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import cheateEmail from "../components/CheatingEmail";
 import { useNavigate } from "react-router-dom";
+import JobPostingModal from "../components/Jobposting";
+
+// Job Listings Card
+const JobListingCard = ({ jobs, onEdit, onDelete }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 3;
+  
+  // Calculate the jobs to display on current page
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+  
+  // Calculate total number of pages
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-xl mb-6">
+      <div className="border-b p-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">Active Job Postings</h2>
+        <div className="text-sm text-gray-500">
+          Showing {indexOfFirstJob + 1}-{Math.min(indexOfLastJob, jobs.length)} of {jobs.length} jobs
+        </div>
+      </div>
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {currentJobs.map((job) => (
+          <div key={job._id} className="bg-gray-50 rounded-lg p-6 relative">
+            <div className="absolute top-4 right-4 flex space-x-2">
+              <button
+                onClick={() => onEdit(job)}
+                className="p-2 hover:bg-gray-200 rounded-full"
+              >
+                <Edit className="w-5 h-5 text-blue-600" />
+              </button>
+              <button
+                onClick={() => onDelete(job._id)}
+                className="p-2 hover:bg-gray-200 rounded-full"
+              >
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </button>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {job.jobRole}
+            </h3>
+            <div className="space-y-2 text-gray-600">
+              <p className="flex items-center">
+                <Briefcase className="w-4 h-4 mr-2" />
+                {job.companyName}
+              </p>
+              <p className="flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                Deadline: {new Date(job.deadline).toLocaleDateString()}
+              </p>
+            </div>
+            <p className="mt-4 text-gray-700 line-clamp-3">{job.desc}</p>
+          </div>
+        ))}
+      </div>
+      
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="border-t p-4 flex justify-between items-center">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === 1
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            Previous
+          </button>
+          
+          <div className="text-gray-600">
+            Page {currentPage} of {totalPages}
+          </div>
+          
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === totalPages
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Component for Recruiter Info Card
 const RecruiterInfoCard = ({ recruiterInfo }) => (
@@ -251,11 +359,78 @@ const RecruitmentDashboard = () => {
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [recruiterInfo, setRecruiterInfo] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [jobPostingModalOpen, setJobPostingModalOpen] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [editingJob, setEditingJob] = useState(null);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+  const fetchJobs = async () => {
+    try {
+      const jobsResponse = await axios.get(`${BACKEND_URL}/allJob`);
+      setJobs(jobsResponse.data);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
+    fetchJobs();
+  }, []);
+
+  const handleJobSubmit = async (jobData) => {
+    try {
+      if (jobData._id) {
+        // Job was updated - update in state
+        setJobs(
+          jobs.map((job) =>
+            job._id === jobData._id ? { ...job, ...jobData } : job
+          )
+        );
+        alert("Job updated successfully");
+      } else {
+        // Job was created - add to state
+        const createdJob = {
+          ...jobData,
+          _id: jobData._id, // This should come from the server response
+        };
+        setJobs([...jobs, createdJob]);
+        alert("Job created successfully");
+      }
+      setJobPostingModalOpen(false);
+      setEditingJob(null);
+    } catch (error) {
+      console.error("Error saving job:", error);
+      alert(error.response?.data?.message || "Failed to save job posting");
+    }
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    if (window.confirm("Are you sure you want to delete this job posting?")) {
+      try {
+        const response = await axios.delete(`${BACKEND_URL}/deleteJob`, {
+          data: { jobId },
+        });
+
+        if (response.status === 200) {
+          setJobs(jobs.filter((job) => job._id !== jobId));
+          alert("Job deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error deleting job:", error);
+        alert(error.response?.data?.message || "Failed to delete job posting");
+      }
+    }
+  };
+
+  // Fixed handleEditJob function - now it just populates the form
+  const handleEditJob = (job) => {
+    setEditingJob(job);
+    setJobPostingModalOpen(true);
+  };
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
       try {
         const userId = localStorage.getItem("userId");
         if (!userId) {
@@ -276,15 +451,15 @@ const RecruitmentDashboard = () => {
             )
               ? "Passed"
               : response.data.aptitudeFailedCandidates.includes(candidate.email)
-                ? "Failed"
-                : "Pending",
+              ? "Failed"
+              : "Pending",
             techStatus: response.data.techPassesCandidates.includes(
               candidate.email
             )
               ? "Passed"
               : response.data.techFailedCandidates.includes(candidate.email)
-                ? "Failed"
-                : "Pending",
+              ? "Failed"
+              : "Pending",
             hrStatus: "Pending",
             isCheating: !!(candidate.cheatImage || candidate.cheatComment),
           })
@@ -292,11 +467,11 @@ const RecruitmentDashboard = () => {
 
         setCandidates(enrichedCandidates);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching candidates:", error);
       }
     };
 
-    fetchData();
+    fetchCandidates();
   }, []);
 
   const handleRejectCandidate = async (candidate) => {
@@ -355,6 +530,12 @@ const RecruitmentDashboard = () => {
 
         <StatsCard candidates={candidates} />
 
+        <JobListingCard
+          jobs={jobs}
+          onEdit={handleEditJob}
+          onDelete={handleDeleteJob}
+        />
+
         <div className="bg-white rounded-lg shadow-xl">
           <div className="border-b p-6">
             <div className="flex justify-between items-center">
@@ -369,6 +550,16 @@ const RecruitmentDashboard = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="px-4 py-2 border rounded-lg w-80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+                <button
+                  onClick={() => {
+                    setEditingJob(null); // Ensure we're creating a new job
+                    setJobPostingModalOpen(true);
+                  }}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+                >
+                  <Plus size={20} />
+                  <span>Create Job Posting</span>
+                </button>
               </div>
             </div>
           </div>
@@ -402,10 +593,11 @@ const RecruitmentDashboard = () => {
                 {sortedCandidates.map((candidate) => (
                   <tr
                     key={candidate.email}
-                    className={`border-b transition-colors ${candidate.isCheating
-                      ? "bg-red-50 hover:bg-red-100"
-                      : "hover:bg-gray-50"
-                      }`}
+                    className={`border-b transition-colors ${
+                      candidate.isCheating
+                        ? "bg-red-50 hover:bg-red-100"
+                        : "hover:bg-gray-50"
+                    }`}
                   >
                     <td className="px-6 py-4 font-medium flex items-center">
                       {candidate.isCheating && (
@@ -456,16 +648,26 @@ const RecruitmentDashboard = () => {
                       {candidate.hrStatus === "Pending" ? (
                         <button
                           onClick={() => {
-                            localStorage.setItem("interviewRecruiterEmail", recruiterInfo.email)
-                            localStorage.setItem("interviewCandidateEmail", candidate.email)
-                            navigate(`/hrRoundEntrance`)
+                            localStorage.setItem(
+                              "interviewRecruiterEmail",
+                              recruiterInfo.email
+                            );
+                            localStorage.setItem(
+                              "interviewCandidateEmail",
+                              candidate.email
+                            );
+                            navigate(`/hrRoundEntrance`);
                           }}
                           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                         >
                           Take Interview
                         </button>
                       ) : (
-                        <span className={`inline-flex items-center ${getStatusColor(candidate.hrStatus)}`}>
+                        <span
+                          className={`inline-flex items-center ${getStatusColor(
+                            candidate.hrStatus
+                          )}`}
+                        >
                           {candidate.hrStatus}
                           {candidate.hrStatus === "Passed" && (
                             <span className="ml-2 w-2 h-2 bg-green-500 rounded-full"></span>
@@ -483,10 +685,11 @@ const RecruitmentDashboard = () => {
                             setSelectedCandidate(candidate);
                             setEmailModalOpen(true);
                           }}
-                          className={`p-2 rounded-full hover:bg-gray-100 ${candidate.isCheating
-                            ? "text-red-500 hover:text-red-700"
-                            : "text-blue-500 hover:text-blue-700"
-                            }`}
+                          className={`p-2 rounded-full hover:bg-gray-100 ${
+                            candidate.isCheating
+                              ? "text-red-500 hover:text-red-700"
+                              : "text-blue-500 hover:text-blue-700"
+                          }`}
                         >
                           <Mail size={20} />
                         </button>
@@ -529,6 +732,17 @@ const RecruitmentDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Job Posting Modal */}
+      <JobPostingModal
+        isOpen={jobPostingModalOpen}
+        onClose={() => {
+          setJobPostingModalOpen(false);
+          setEditingJob(null);
+        }}
+        onSubmit={handleJobSubmit}
+        initialData={editingJob}
+      />
     </div>
   );
 };
