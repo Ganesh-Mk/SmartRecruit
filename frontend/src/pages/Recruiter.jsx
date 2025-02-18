@@ -46,7 +46,6 @@ const RecruiterInfo = () => {
       if (response.status === 200) {
         console.log("response: ", response);
 
-        alert("Interview time scheduled successfully!");
         localStorage.setItem("companyName", companyName);
         localStorage.setItem("jobRole", jobrole);
         localStorage.setItem("startTime", startTime);

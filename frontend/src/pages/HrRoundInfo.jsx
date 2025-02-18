@@ -106,7 +106,7 @@ export default function HRRoundInfo() {
         await delay(800);
       }
 
-      alert("All emails sent successfully.");
+      alert("Emails have been successfully sent to all candidates.");
     } catch (error) {
       console.error("Error sending emails:", error);
       alert("An error occurred while sending emails. Please try again.");
@@ -168,11 +168,10 @@ export default function HRRoundInfo() {
           <button
             onClick={handleProceed}
             disabled={!isInstructionsRead}
-            className={`w-full py-3 px-8 rounded-lg transition-all text-lg font-semibold ${
-              isInstructionsRead
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            className={`w-full py-3 px-8 rounded-lg transition-all text-lg font-semibold ${isInstructionsRead
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
           >
             Proceed to Next Round
           </button>

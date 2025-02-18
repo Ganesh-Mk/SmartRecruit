@@ -1,6 +1,7 @@
 Smart Recruit Fixed and Features:
 
-> fix: in Recruiter.jsx while getting recruiter information, we also need  to get the deadline date
-> feat: before candidateUpload.jsx, we need to have 
-> refactor: user Id to secret key in email. and also mention how to use this secret key
+> refactor: change user id to secret key in aptitude invitation email
+> refactor: change user id to secret key in quizRound entrance page
+> feat: add more details in invitation email about rules and how to use this secret key
+> fix: in techRound invitation email, can't see secret key (userId)
 

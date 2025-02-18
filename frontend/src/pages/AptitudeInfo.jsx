@@ -249,11 +249,27 @@ export default function AptitudeInfo() {
   const renderQuizSection = () => {
     if (loader) {
       return (
-        <div className="flex justify-center items-center my-8">
-          <Loader2 className="animate-spin text-blue-500" size={48} />
+        <div className="flex flex-col items-center justify-center min-h-[200px] w-full">
+          <div className="flex items-center gap-2">
+            {[...Array(3)].map((_, index) => (
+              <div
+                key={index}
+                className={`w-3 h-3 rounded-full bg-blue-500 animate-bounce`}
+                style={{
+                  animationDelay: `${index * 0.2}s`,
+                }}
+              />
+            ))}
+          </div>
+          <p className="mt-6 text-lg text-gray-600 animate-pulse">
+            Generating questions just like you want...
+          </p>
         </div>
       );
     }
+
+
+
 
     if (showPreGenerated) {
       return (
@@ -262,11 +278,10 @@ export default function AptitudeInfo() {
             <div
               key={quiz.uniqueKey}
               onClick={() => handlePreGeneratedSelect(quiz)}
-              className={`cursor-pointer p-4 border rounded-lg transition-all shadow-sm ${
-                quiz.selected
-                  ? "bg-blue-50 border-blue-500"
-                  : "bg-white hover:bg-gray-50"
-              }`}
+              className={`cursor-pointer p-4 border rounded-lg transition-all shadow-sm ${quiz.selected
+                ? "bg-blue-50 border-blue-500"
+                : "bg-white hover:bg-gray-50"
+                }`}
             >
               <h3 className="font-semibold mb-2 text-gray-800">{quiz.que}</h3>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
@@ -295,11 +310,10 @@ export default function AptitudeInfo() {
               <div
                 key={quiz.uniqueKey}
                 onClick={() => handleExistingQuestionSelect(quiz)}
-                className={`cursor-pointer p-4 border rounded-lg transition-all shadow-sm ${
-                  quiz.selected
-                    ? "bg-purple-50 border-purple-500"
-                    : "bg-white hover:bg-gray-50"
-                }`}
+                className={`cursor-pointer p-4 border rounded-lg transition-all shadow-sm ${quiz.selected
+                  ? "bg-purple-50 border-purple-500"
+                  : "bg-white hover:bg-gray-50"
+                  }`}
               >
                 <h3 className="font-semibold mb-2 text-gray-800">{quiz.que}</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
@@ -324,22 +338,20 @@ export default function AptitudeInfo() {
               <button
                 onClick={prevPage}
                 disabled={currentPage === 1}
-                className={`relative inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${
-                  currentPage === 1
-                    ? "bg-gray-100 text-gray-400"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
+                className={`relative inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${currentPage === 1
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
               >
                 Previous
               </button>
               <button
                 onClick={nextPage}
                 disabled={currentPage === totalPages}
-                className={`relative ml-3 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${
-                  currentPage === totalPages
-                    ? "bg-gray-100 text-gray-400"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
+                className={`relative ml-3 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
               >
                 Next
               </button>
@@ -365,11 +377,10 @@ export default function AptitudeInfo() {
                   <button
                     onClick={prevPage}
                     disabled={currentPage === 1}
-                    className={`relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium ${
-                      currentPage === 1
-                        ? "bg-gray-100 text-gray-400"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium ${currentPage === 1
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
                     Previous
                   </button>
@@ -379,11 +390,10 @@ export default function AptitudeInfo() {
                   <button
                     onClick={nextPage}
                     disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium ${
-                      currentPage === totalPages
-                        ? "bg-gray-100 text-gray-400"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium ${currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
                     Next
                   </button>
@@ -511,14 +521,14 @@ export default function AptitudeInfo() {
         {showPreGenerated && (
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Specify Aptitude Question Type
+              Specify Aptitude Question Type and difficulty
             </label>
             <div className="flex">
               <input
                 type="text"
                 value={quizGenerationType}
                 onChange={(e) => setQuizGenerationType(e.target.value)}
-                placeholder="e.g., Reasoning, Numeric, Logical..."
+                placeholder="e.g., Reasoning, Numeric difficult, Logical easy ..."
                 className="flex-grow p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
@@ -601,18 +611,16 @@ export default function AptitudeInfo() {
                     key={quiz.uniqueKey}
                     className="border-b py-3 last:border-b-0"
                   >
-                    <h3 className="font-semibold text-lg mb-2">{`Q${
-                      index + 1
-                    }. ${quiz.que}`}</h3>
+                    <h3 className="font-semibold text-lg mb-2">{`Q${index + 1
+                      }. ${quiz.que}`}</h3>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       {["a", "b", "c", "d"].map((option) => (
                         <div
                           key={option}
-                          className={`p-2 rounded ${
-                            quiz.ans === option
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
+                          className={`p-2 rounded ${quiz.ans === option
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-700"
+                            }`}
                         >
                           {option.toUpperCase()}: {quiz[option]}
                         </div>

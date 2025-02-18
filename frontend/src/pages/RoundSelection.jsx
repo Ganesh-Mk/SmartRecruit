@@ -10,6 +10,8 @@ const RoundSelection = () => {
   });
   const [userid, setuserid] = useState("");
 
+
+
   const [roundDurations, setRoundDurations] = useState({
     aptitude: "30", // Default duration
     technical: "60", // Default duration
@@ -19,6 +21,7 @@ const RoundSelection = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     fetchUserInfo();
   }, []);
 
