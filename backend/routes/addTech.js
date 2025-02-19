@@ -10,7 +10,6 @@ router.post("/addTech", async (req, res) => {
 
     // Parse the JSON string back to an array of objects
     const parsedProblems = JSON.parse(problems).problems;
-    console.log("===================\n\n\n\n\n", parsedProblems);
 
     // Find the user and add the problems
     const user = await User.findById(userId);

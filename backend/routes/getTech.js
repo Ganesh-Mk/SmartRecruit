@@ -19,7 +19,6 @@ router.get("/getTech", async (req, res) => {
 
       // Return the tech problems related to this user
 
-      console.log("user: ", user.allTechProblems);
       return res
         .status(200)
         .json({ success: true, techEntries: user.allTechProblems });

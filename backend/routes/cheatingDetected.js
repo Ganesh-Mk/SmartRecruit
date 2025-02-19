@@ -5,7 +5,6 @@ const User = require("../models/userModel"); // Adjust the path to your user mod
 router.post("/cheatingDetected", async (req, res) => {
   const { userId, email, comment, cheatImage } = req.body;
 
-  console.log("Request body:", req.body);
 
   if (!email || !comment) {
     return res.status(400).json({ message: "Email and comment are required." });

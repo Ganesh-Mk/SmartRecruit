@@ -19,7 +19,7 @@ const upload = multer({ storage });
 // Convert buffer to readable stream
 const bufferToStream = (buffer) => {
   const readable = new Readable();
-  readable._read = () => {};
+  readable._read = () => { };
   readable.push(buffer);
   readable.push(null); // End of stream
   return readable;
@@ -32,9 +32,6 @@ router.post(
     const { userId, email } = req.body;
     const screenshotFile = req.file;
 
-    console.log("file", screenshotFile);
-    console.log("userId", userId);
-    console.log("email", email);
 
     try {
       const user = await User.findOne({ email, _id: userId });
