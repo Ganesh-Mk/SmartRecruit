@@ -30,6 +30,9 @@ router.post("/updateUser", async (req, res) => {
     technicalScore,
   } = req.body;
 
+  console.log("Data of technical round came to backend : ",userId, userEmail, technicalScore);
+  
+
   let techPass = false;
   try {
     const user = await User.findById(userId);
@@ -66,18 +69,22 @@ router.post("/updateUser", async (req, res) => {
       }
 
       // Check if tech passingMarks are set and if score meets/exceeds the passingMarks
-      if (technicalScore >= user.technicalPassingMarks) {
-        if (!user.techPassesCandidates.includes(userEmail)) {
-          user.techPassesCandidates.push(userEmail); // Add email to passed candidates
-          techPass = true;
-          break;
-        }
-      } else {
-        if (!user.techFailedCandidates.includes(userEmail)) {
-          user.techFailedCandidates.push(userEmail); // Add email to failed candidates
-          break;
+      if (!score) {
+        console.log("Entered")
+        if (technicalScore >= user.technicalPassingMarks) {
+          if (!user.techPassesCandidates.includes(userEmail)) {
+            user.techPassesCandidates.push(userEmail); // Add email to passed candidates
+            techPass = true;
+            break;
+          }
+        } else {
+          if (!user.techFailedCandidates.includes(userEmail)) {
+            user.techFailedCandidates.push(userEmail); // Add email to failed candidates
+            break;
+          }
         }
       }
+
       break;
     }
 
