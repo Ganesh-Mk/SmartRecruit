@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import * as pdfjsLib from "pdfjs-dist/webpack";
-import { motion } from "framer-motion";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
@@ -10,6 +9,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 
 const JobApplicationForm = () => {
   const { jobId } = useParams();
+  const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const jobDesc = localStorage.getItem("jobDesc");
 
@@ -21,7 +21,9 @@ const JobApplicationForm = () => {
   const [pdfText, setPdfText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [loader, setLoader] = useState(false);
   const [jobInfo, setJobInfo] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,20 +67,32 @@ const JobApplicationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoader(true);
     try {
       const response = await fetch(`${BACKEND_URL}/scanResume`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId: localStorage.getItem("userId"),
+          name: formData.fullName,
+          email: formData.email,
           resumeContent: pdfText,
           jobDesc
         }),
       });
       const data = await response.json();
-      console.log(data)
+      console.log(data);
+      setShowSuccessModal(true);
     } catch (error) {
-      console.error("Error fetching job info:", error);
+      console.error("Error submitting application:", error);
+    } finally {
+      setLoader(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigate('/jobs');
   };
 
   const getJobInfo = async () => {
@@ -108,6 +122,31 @@ const JobApplicationForm = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white w-full max-w-md m-4 rounded-xl shadow-2xl transform transition-all">
+            <div className="p-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-center text-gray-900 mb-2">Application Submitted Successfully!</h3>
+              <p className="text-center text-gray-600 mb-6">
+                Your application for {jobInfo?.jobRole} at {jobInfo?.companyName} has been received. We'll notify you about the next steps.
+              </p>
+              <button
+                onClick={handleCloseModal}
+                className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+              >
+                Great, thanks!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto pt-8 px-4 sm:px-6 lg:px-8">
         {jobInfo && (
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-[1.01] transition-all duration-300">
@@ -252,11 +291,22 @@ const JobApplicationForm = () => {
             <div className="pt-6">
               <button
                 type="submit"
-                className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg
-                         hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-500/50 transform hover:-translate-y-0.5
-                         transition-all duration-200 focus:outline-none"
+                disabled={loader}
+                className={`w-full px-6 py-4 font-medium rounded-lg transition-all duration-200 focus:outline-none
+                  flex items-center justify-center gap-2
+                  ${loader
+                    ? "bg-gray-400 cursor-not-allowed text-white"
+                    : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-500/50 transform hover:-translate-y-0.5"
+                  }`}
               >
-                Submit Application
+                {loader ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  "Submit Application"
+                )}
               </button>
             </div>
           </form>
