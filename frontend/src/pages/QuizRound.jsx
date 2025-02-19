@@ -342,6 +342,7 @@ const QuizComponent = () => {
         const templateParams = {
           subject: "Congratulations! You're Invited to the Technical Round",
           candidate_name: name,
+          user_id: localStorage.getItem("userId"),
           hr_email: hremail,
           roundName: "Technical Round",
           tech_link: `${FRONTEND_URL}/techRound`,
@@ -421,7 +422,7 @@ const QuizComponent = () => {
           <input
             type="text"
             name="name"
-            placeholder="User id"
+            placeholder="Secret Key"
             value={userid}
             onChange={(e) => setuserid(e.target.value)}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.name

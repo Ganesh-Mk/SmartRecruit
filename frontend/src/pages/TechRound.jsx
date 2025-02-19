@@ -244,7 +244,7 @@ const TechRound = () => {
         const templateParams = {
           to_email: localStorage.getItem("technicalUserEmail"),
           jobRole: jobRole,
-          linkForNextRound: ` ${VITE_FRONTEND_URL}/hrRoundEntrance`,
+          linkForNextRound: 'smartrecruit/hrRoundEntrance',
           companyName: companyName,
         };
 
@@ -607,7 +607,7 @@ const TechRound = () => {
             </div>
             <div className="mb-4">
               <label htmlFor="userId" className="block mb-2 text-gray-700">
-                User ID
+                Secret Key
               </label>
               <input
                 type="text"
