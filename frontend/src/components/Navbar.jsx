@@ -11,20 +11,21 @@ const Navbar = () => {
       setisEmail(email);
     }
   }, [isEmail]);
-  
+
   return (
     <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-10 py-2 sm:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Jobs button */}
-          <div className="flex items-center space-x-6">
-            <div className="flex-shrink-0">
-              <span className="text-2xl font-bold text-blue-600">
-                SmartRecruit
-              </span>
+          <Link to={"/"}>
+            <div className="flex items-center space-x-6">
+              <div className="flex-shrink-0">
+                <span className="text-2xl font-bold text-blue-600">
+                  SmartRecruit
+                </span>
+              </div>
             </div>
-
-          </div>
+          </Link>
 
           {/* Right side buttons */}
           {isEmail ? (
@@ -34,7 +35,7 @@ const Navbar = () => {
                   type="button"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 >
-               Jobs
+                  Jobs
                 </Button>
               </Link>
               <Link to={"/dashboard"}>

@@ -20,24 +20,24 @@ import { useNavigate } from "react-router-dom";
 import JobPostingModal from "../components/Jobposting";
 
 // Job Listings Card
-const JobListingCard = ({ jobs, onEdit, onDelete }) => {
+const JobListingCard = ({ jobs, onEdit, onDelete, setEditingJob, setJobPostingModalOpen }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 3;
-  
+
   // Calculate the jobs to display on current page
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-  
+
   // Calculate total number of pages
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
-  
+
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
-  
+
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -46,8 +46,19 @@ const JobListingCard = ({ jobs, onEdit, onDelete }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-xl mb-6">
+
       <div className="border-b p-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Active Job Postings</h2>
+        <h2 className="text-2xl font-bold text-gray-800">My Jobs Posting</h2>
+        <button
+          onClick={() => {
+            setEditingJob(null);
+            setJobPostingModalOpen(true);
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <Plus size={20} />
+          <span>Create Job Posting</span>
+        </button>
         <div className="text-sm text-gray-500">
           Showing {indexOfFirstJob + 1}-{Math.min(indexOfLastJob, jobs.length)} of {jobs.length} jobs
         </div>
@@ -85,35 +96,41 @@ const JobListingCard = ({ jobs, onEdit, onDelete }) => {
             <p className="mt-4 text-gray-700 line-clamp-3">{job.desc}</p>
           </div>
         ))}
+
+        {currentJobs.length === 0 && (
+          <div className=" rounded-lg text-gray-600">
+            jobs not posted yet
+          </div>
+        )}
       </div>
-      
+
+
+
       {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="border-t p-4 flex justify-between items-center">
           <button
             onClick={handlePrevPage}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-lg ${
-              currentPage === 1
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+            className={`px-4 py-2 rounded-lg ${currentPage === 1
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
           >
             Previous
           </button>
-          
+
           <div className="text-gray-600">
             Page {currentPage} of {totalPages}
           </div>
-          
+
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-lg ${
-              currentPage === totalPages
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+            className={`px-4 py-2 rounded-lg ${currentPage === totalPages
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
           >
             Next
           </button>
@@ -362,12 +379,13 @@ const RecruitmentDashboard = () => {
   const [jobPostingModalOpen, setJobPostingModalOpen] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [editingJob, setEditingJob] = useState(null);
+  const userId = localStorage.getItem("userId");
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   const fetchJobs = async () => {
     try {
-      const jobsResponse = await axios.get(`${BACKEND_URL}/allJob`);
+      const jobsResponse = await axios.get(`${BACKEND_URL}/jobs/${userId}`);
       setJobs(jobsResponse.data);
     } catch (error) {
       console.error("Error fetching jobs:", error);
@@ -451,15 +469,15 @@ const RecruitmentDashboard = () => {
             )
               ? "Passed"
               : response.data.aptitudeFailedCandidates.includes(candidate.email)
-              ? "Failed"
-              : "Pending",
+                ? "Failed"
+                : "Pending",
             techStatus: response.data.techPassesCandidates.includes(
               candidate.email
             )
               ? "Passed"
               : response.data.techFailedCandidates.includes(candidate.email)
-              ? "Failed"
-              : "Pending",
+                ? "Failed"
+                : "Pending",
             hrStatus: "Pending",
             isCheating: !!(candidate.cheatImage || candidate.cheatComment),
           })
@@ -534,6 +552,8 @@ const RecruitmentDashboard = () => {
           jobs={jobs}
           onEdit={handleEditJob}
           onDelete={handleDeleteJob}
+          setEditingJob={setEditingJob}
+          setJobPostingModalOpen={setJobPostingModalOpen}
         />
 
         <div className="bg-white rounded-lg shadow-xl">
@@ -550,16 +570,7 @@ const RecruitmentDashboard = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="px-4 py-2 border rounded-lg w-80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-                <button
-                  onClick={() => {
-                    setEditingJob(null); // Ensure we're creating a new job
-                    setJobPostingModalOpen(true);
-                  }}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
-                >
-                  <Plus size={20} />
-                  <span>Create Job Posting</span>
-                </button>
+
               </div>
             </div>
           </div>
@@ -593,11 +604,10 @@ const RecruitmentDashboard = () => {
                 {sortedCandidates.map((candidate) => (
                   <tr
                     key={candidate.email}
-                    className={`border-b transition-colors ${
-                      candidate.isCheating
-                        ? "bg-red-50 hover:bg-red-100"
-                        : "hover:bg-gray-50"
-                    }`}
+                    className={`border-b transition-colors ${candidate.isCheating
+                      ? "bg-red-50 hover:bg-red-100"
+                      : "hover:bg-gray-50"
+                      }`}
                   >
                     <td className="px-6 py-4 font-medium flex items-center">
                       {candidate.isCheating && (
@@ -685,11 +695,10 @@ const RecruitmentDashboard = () => {
                             setSelectedCandidate(candidate);
                             setEmailModalOpen(true);
                           }}
-                          className={`p-2 rounded-full hover:bg-gray-100 ${
-                            candidate.isCheating
-                              ? "text-red-500 hover:text-red-700"
-                              : "text-blue-500 hover:text-blue-700"
-                          }`}
+                          className={`p-2 rounded-full hover:bg-gray-100 ${candidate.isCheating
+                            ? "text-red-500 hover:text-red-700"
+                            : "text-blue-500 hover:text-blue-700"
+                            }`}
                         >
                           <Mail size={20} />
                         </button>

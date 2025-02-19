@@ -11,7 +11,6 @@ const JobApplicationForm = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  const jobDesc = localStorage.getItem("jobDesc");
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -77,7 +76,7 @@ const JobApplicationForm = () => {
           name: formData.fullName,
           email: formData.email,
           resumeContent: pdfText,
-          jobDesc
+          jobDesc: jobInfo.description
         }),
       });
       const data = await response.json();
@@ -102,6 +101,7 @@ const JobApplicationForm = () => {
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
+      console.log("job info: ", data);
       setJobInfo(data);
     } catch (error) {
       console.error("Error fetching job info:", error);

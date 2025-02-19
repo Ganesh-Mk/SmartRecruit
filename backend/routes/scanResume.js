@@ -33,7 +33,7 @@ router.post("/scanResume", async (req, res) => {
 
     // Save to Excel using utility function
     const allData = saveScoreToExcel(userId, name, email, score);
-    // console.log(allData);
+    console.log(allData);
 
     res.status(200).json({ score, allData });
   } catch (error) {

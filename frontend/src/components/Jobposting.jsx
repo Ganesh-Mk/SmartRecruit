@@ -13,7 +13,7 @@ const JobPostingModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  
+
   // Determine if we're editing an existing job
   const isEditing = !!initialData;
 
@@ -21,13 +21,13 @@ const JobPostingModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   useEffect(() => {
     if (initialData) {
       // Convert ISO date string to YYYY-MM-DD format for input field
-      const deadlineDate = initialData.deadline ? 
+      const deadlineDate = initialData.deadline ?
         new Date(initialData.deadline).toISOString().split('T')[0] : '';
-      
+
       setFormData({
         jobRole: initialData.jobRole || '',
         companyName: initialData.companyName || '',
-        description: initialData.description || '', // Note: mapping desc to description
+        description: initialData.description || '',
         deadline: deadlineDate,
         userId: localStorage.getItem("userId"),
       });
@@ -56,17 +56,17 @@ const JobPostingModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
     try {
       let response;
-      
+
       // Handle either create or update based on whether we have initialData
       if (isEditing) {
         response = await axios.put(`${BACKEND_URL}/updateJob`, {
           jobId: initialData._id,
           jobRole: formData.jobRole,
           companyName: formData.companyName,
-          desc: formData.description, // Map description back to desc for API
+          desc: formData.description,
           deadline: formData.deadline,
         });
-        
+
         if (response.status === 200) {
           console.log("Job updated successfully");
           if (onSubmit) {
@@ -82,7 +82,7 @@ const JobPostingModal = ({ isOpen, onClose, onSubmit, initialData }) => {
           ...formData,
           desc: formData.description, // Map description to desc for API
         });
-        
+
         if (response.status === 200 || response.status === 201) {
           console.log("Job created successfully");
           if (onSubmit) {

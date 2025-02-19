@@ -19,10 +19,12 @@ import CRRound from "./pages/CRRound";
 import JobPosting from "./pages/JobPosting";
 
 import JobApplication from "./pages/JobApplication";
+import Navbar from "./components/Navbar";
 
 const App = () => {
   return (
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/recruiter" element={<Recruiter />} />

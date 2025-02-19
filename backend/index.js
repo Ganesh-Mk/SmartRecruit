@@ -76,6 +76,7 @@ const allUser = require("./routes/allUser");
 const getJob = require("./routes/getJob");
 const scanResume = require("./routes/scanResume");
 const getExcelFile = require("./routes/getExcelFile");
+const jobs = require("./routes/jobs");
 
 // Use routes
 app.use(signup);
@@ -99,6 +100,7 @@ app.use(allUser);
 app.use(getJob);
 app.use(scanResume);
 app.use(getExcelFile);
+app.use(jobs);
 
 // Test route for users
 app.get("/", async (req, res) => {
