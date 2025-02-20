@@ -30,8 +30,7 @@ router.post("/updateUser", async (req, res) => {
     technicalScore,
   } = req.body;
 
-  console.log("Data of technical round came to backend : ",userId, userEmail, technicalScore);
-  
+  console.log("Data of technical round came to backend : ", userId, userEmail, technicalScore);
 
   let techPass = false;
   try {
@@ -54,41 +53,34 @@ router.post("/updateUser", async (req, res) => {
     if (techTime) user.techTime = techTime;
     if (hrTime) user.hrTime = hrTime;
 
-    // Check if aptitude passingMarks are set and if score meets/exceeds the passingMarks
-    while (true) {
+    // Check aptitude results
+    if (score !== undefined) {
       if (score >= user.aptitudePassingMarks) {
         if (!user.aptitudePassesCandidates.includes(userEmail)) {
-          user.aptitudePassesCandidates.push(userEmail); // Add email to passed candidates
-          break;
+          user.aptitudePassesCandidates.push(userEmail);
         }
       } else {
         if (!user.aptitudeFailedCandidates.includes(userEmail)) {
-          user.aptitudeFailedCandidates.push(userEmail); // Add email to failed candidates
-          break;
+          user.aptitudeFailedCandidates.push(userEmail);
         }
       }
-
-      // Check if tech passingMarks are set and if score meets/exceeds the passingMarks
-      if (!score) {
-        console.log("Entered")
-        if (technicalScore >= user.technicalPassingMarks) {
-          if (!user.techPassesCandidates.includes(userEmail)) {
-            user.techPassesCandidates.push(userEmail); // Add email to passed candidates
-            techPass = true;
-            break;
-          }
-        } else {
-          if (!user.techFailedCandidates.includes(userEmail)) {
-            user.techFailedCandidates.push(userEmail); // Add email to failed candidates
-            break;
-          }
-        }
-      }
-
-      break;
     }
 
-    // Update email and check if it already exists
+    // Check technical results if technicalScore is provided
+    if (technicalScore !== undefined) {
+      if (technicalScore >= user.technicalPassingMarks) {
+        if (!user.techPassesCandidates.includes(userEmail)) {
+          user.techPassesCandidates.push(userEmail);
+          techPass = true;
+        }
+      } else {
+        if (!user.techFailedCandidates.includes(userEmail)) {
+          user.techFailedCandidates.push(userEmail);
+        }
+      }
+    }
+
+    // Update email if provided
     if (email) {
       const emailExists = await User.findOne({ email });
       if (emailExists && emailExists._id.toString() !== userId) {
