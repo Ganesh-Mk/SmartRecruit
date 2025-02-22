@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ReadAndSpeakRound from '../components/ReadAndSpeakRound';
 import ListenAndSpeakRound from '../components/ListenAndSpeakRound';
 import TopicAndSpeakRound from '../components/TopicAndSpeakRound';
-import axios from 'axios';
 import CommunicationLogin from '../components/CommunicationLogin';
 
-// Main Component
 const CommunicationRound = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [currentRound, setCurrentRound] = useState(1);
@@ -13,6 +11,7 @@ const CommunicationRound = () => {
   const [roundData, setRoundData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const userId = localStorage.getItem('userId');
   const [scores, setScores] = useState({
     round1: null,
@@ -25,14 +24,11 @@ const CommunicationRound = () => {
   }, []);
 
   useEffect(() => {
-    // Check if user is already logged in
     const userId = localStorage.getItem('userId');
     if (userId) {
       setIsLoggedIn(true);
     }
   }, []);
-
-
 
   const fetchRoundData = async () => {
     try {
@@ -41,7 +37,6 @@ const CommunicationRound = () => {
 
       const response = await fetch(`${BACKEND_URL}/getCommunication/${userId}`);
       const result = await response.json();
-      console.log(result)
 
       if (!result.success) {
         throw new Error('Failed to fetch round data');
@@ -52,7 +47,7 @@ const CommunicationRound = () => {
     } catch (error) {
       console.error('Error fetching round data:', error);
       setError('Failed to load assessment data. Please try again.');
-      localStorage.removeItem('userId')
+      localStorage.removeItem('userId');
       setLoading(false);
     }
   };
@@ -64,6 +59,15 @@ const CommunicationRound = () => {
     }));
     if (roundNumber < 3) {
       setCurrentRound(roundNumber + 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Add your API call here if needed
+      setShowCompletionModal(true);
+    } catch (error) {
+      console.error('Error submitting scores:', error);
     }
   };
 
@@ -79,7 +83,6 @@ const CommunicationRound = () => {
     return <CommunicationLogin onLoginSuccess={() => setIsLoggedIn(true)} />;
   }
 
-  // Show error state
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -105,7 +108,6 @@ const CommunicationRound = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Progress Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Communication Assessment</h1>
           <div className="flex justify-between items-center bg-white rounded-xl p-6 shadow-lg">
@@ -122,17 +124,11 @@ const CommunicationRound = () => {
                 <span className="mt-2 text-sm font-medium text-gray-600">
                   {round === 1 ? 'Read & Speak' : round === 2 ? 'Listen & Speak' : 'Topic & Speak'}
                 </span>
-                {scores[`round${round}`] !== null && (
-                  <span className="mt-1 text-sm font-bold text-indigo-600">
-                    Score: {scores[`round${round}`]}%
-                  </span>
-                )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Round Components */}
         {currentRound === 1 && roundData && (
           <ReadAndSpeakRound
             questions={roundData.readAndSpeak}
@@ -151,8 +147,8 @@ const CommunicationRound = () => {
             onComplete={(score) => handleRoundComplete(3, score)}
           />
         )}
-        {/* Final Results */}
-        {scores.round3 !== null && (
+
+        {/* {scores.round3 !== null && (
           <div className="mt-8 bg-white rounded-xl p-6 shadow-lg">
             <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">Assessment Complete!</h2>
             <div className="space-y-4">
@@ -173,6 +169,29 @@ const CommunicationRound = () => {
                 <span className="font-bold text-indigo-600">
                   {Math.round((scores.round1 + scores.round2 + scores.round3) / 3)}%
                 </span>
+              </div>
+              <button
+                onClick={handleSubmit}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg mt-4 transition-colors duration-200"
+              >
+                Submit Assessment
+              </button>
+            </div>
+          </div>
+        )} */}
+
+        {/* Completion Modal */}
+        {showCompletionModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Assessment Completed!
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  You have successfully completed all rounds of the Communication Assessment.
+                  You may now leave this page.
+                </p>
               </div>
             </div>
           </div>

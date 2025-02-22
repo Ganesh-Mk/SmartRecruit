@@ -7,6 +7,8 @@ const ListenAndSpeakRound = ({ questions, onComplete }) => {
   const [recognition, setRecognition] = useState(null);
   const [scores, setScores] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  const [similarity, setSimilarity] = useState(null);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
@@ -27,10 +29,11 @@ const ListenAndSpeakRound = ({ questions, onComplete }) => {
 
   const playAudio = () => {
     setIsPlaying(true);
-    // Simulate audio playback
-    setTimeout(() => {
+    const speech = new SpeechSynthesisUtterance(questions[currentQuestion]);
+    speech.onend = () => {
       setIsPlaying(false);
-    }, 3000);
+    };
+    window.speechSynthesis.speak(speech);
   };
 
   const startListening = () => {
@@ -42,17 +45,27 @@ const ListenAndSpeakRound = ({ questions, onComplete }) => {
   const stopListening = () => {
     setIsListening(false);
     recognition.stop();
-    calculateScore();
+    calculateSimilarity();
   };
 
-  const calculateScore = () => {
-    // Simple simulation of scoring for listen and speak
-    const score = Math.floor(Math.random() * 20) + 80; // Random score between 80-100
+  const calculateSimilarity = () => {
+    const text = questions[currentQuestion].toLowerCase().trim();
+    const input = spokenText.toLowerCase().trim();
+    const words = text.split(" ");
+    const inputWords = input.split(" ");
+    let matchCount = words.filter((word, i) => word === inputWords[i]).length;
+    let percentage = (matchCount / words.length) * 100;
+    const score = Math.min(100, Math.max(0, percentage)); // Ensure score is between 0 and 100
+    setSimilarity(score.toFixed(2));
     setScores([...scores, score]);
 
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSpokenText('');
+      setTimeout(() => {
+        setCurrentQuestion(currentQuestion + 1);
+        setSpokenText('');
+        setSimilarity(null);
+        setUserInput('');
+      }, 2000);
     } else {
       const averageScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
       onComplete(averageScore);
@@ -64,32 +77,30 @@ const ListenAndSpeakRound = ({ questions, onComplete }) => {
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Listen and Speak - Question {currentQuestion + 1}</h2>
 
       <div className="mb-8 p-6 bg-indigo-50 rounded-xl">
-        <p className="text-lg text-gray-800">{questions[currentQuestion] || 'Que'}</p>
+        <p className="text-lg text-gray-800">{questions[currentQuestion]}</p>
       </div>
 
-      <div className="flex justify-center space-x-4 mb-6">
+      <div className="flex flex-col items-center space-y-4">
         <button
           onClick={playAudio}
           disabled={isPlaying}
-          className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50"
+          className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 w-48"
         >
           {isPlaying ? 'Playing...' : 'Play Audio'}
         </button>
-      </div>
 
-      <div className="flex justify-center space-x-4">
         {!isListening ? (
           <button
             onClick={startListening}
             disabled={isPlaying}
-            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 w-48"
           >
             Start Speaking
           </button>
         ) : (
           <button
             onClick={stopListening}
-            className="px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700"
+            className="px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 w-48"
           >
             Stop Recording
           </button>
@@ -100,6 +111,14 @@ const ListenAndSpeakRound = ({ questions, onComplete }) => {
         <div className="mt-8 p-6 bg-gray-50 rounded-xl">
           <h3 className="font-medium mb-2">Your speech:</h3>
           <p className="text-gray-700">{spokenText}</p>
+        </div>
+      )}
+
+      {similarity !== null && (
+        <div className="mt-4 text-center">
+          <p className="text-lg font-semibold">
+            Match: <span className="text-indigo-600">{similarity}%</span>
+          </p>
         </div>
       )}
     </div>
