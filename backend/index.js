@@ -4,7 +4,6 @@ require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
-
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -14,9 +13,13 @@ mongoose
   .then(() => console.log("Database Connected"))
   .catch((err) => console.error("Database Connection Failed: ", err));
 
-app.get("/", async (req, res) => {
-  res.send("Hello World!");
-});
+const signup = require("./routes/signup");
+const login = require("./routes/login");
+const root = require("./routes/root");
+
+app.use(root);
+app.use(signup);
+app.use(login);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
