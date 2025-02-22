@@ -1,14 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const Job = require("../../models/jobModel");
+const Job = require("../models/jobModel");
 
-router.get("/allJob", async (req, res) => {
+router.get("/getJob", async (req, res) => {
+  const { jobId } = req.query;
   try {
-    const jobs = await Job.find();
-    res.status(200).json(jobs);
+    const job = await Job.findById(jobId);
+    res.status(200).json(job);
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 });
+
 
 module.exports = router;

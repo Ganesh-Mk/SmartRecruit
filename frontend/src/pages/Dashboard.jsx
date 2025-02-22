@@ -19,108 +19,126 @@ import cheateEmail from "../components/CheatingEmail";
 import { useNavigate } from "react-router-dom";
 import JobPostingModal from "../components/Jobposting";
 
-
 // Job Listings Card
-const JobListingCard = ({ jobs = [], onEdit, onDelete, setEditingJob, setJobPostingModalOpen }) => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const jobsPerPage = 3;
-  
-    // Ensure jobs is always an array
-    const safeJobs = Array.isArray(jobs) ? jobs : [];
-  
-    const indexOfLastJob = currentPage * jobsPerPage;
-    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-    const currentJobs = safeJobs.slice(indexOfFirstJob, indexOfLastJob);
-  
-    const totalPages = Math.ceil(safeJobs.length / jobsPerPage);
-  
-    const handleNextPage = () => {
-      if (currentPage < totalPages) {
-        setCurrentPage(currentPage + 1);
-      }
-    };
-  
-    const handlePrevPage = () => {
-      if (currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      }
-    };
-  
-    return (
-      <div className="bg-white rounded-lg shadow-xl mb-6">
-        <div className="border-b p-6 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-800">My Jobs Posting</h2>
-          <button
-            onClick={() => {
-              setEditingJob(null);
-              setJobPostingModalOpen(true);
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
-          >
-            <Plus size={20} />
-            <span>Create Job Posting</span>
-          </button>
-          <div className="text-sm text-gray-500">
-            Showing {indexOfFirstJob + 1}-{Math.min(indexOfLastJob, safeJobs.length)} of {safeJobs.length} jobs
-          </div>
+const JobListingCard = ({ jobs, onEdit, onDelete, setEditingJob, setJobPostingModalOpen }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 3;
+
+  // Calculate the jobs to display on current page
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-xl mb-6">
+
+      <div className="border-b p-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">My Jobs Posting</h2>
+        <button
+          onClick={() => {
+            setEditingJob(null);
+            setJobPostingModalOpen(true);
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <Plus size={20} />
+          <span>Create Job Posting</span>
+        </button>
+        <div className="text-sm text-gray-500">
+          Showing {indexOfFirstJob + 1}-{Math.min(indexOfLastJob, jobs.length)} of {jobs.length} jobs
         </div>
-  
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentJobs.length > 0 ? (
-            currentJobs.map((job) => (
-              <div key={job._id} className="bg-gray-50 rounded-lg p-6 relative">
-                <div className="absolute top-4 right-4 flex space-x-2">
-                  <button onClick={() => onEdit(job)} className="p-2 hover:bg-gray-200 rounded-full">
-                    <Edit className="w-5 h-5 text-blue-600" />
-                  </button>
-                  <button onClick={() => onDelete(job._id)} className="p-2 hover:bg-gray-200 rounded-full">
-                    <Trash2 className="w-5 h-5 text-red-600" />
-                  </button>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{job.jobRole}</h3>
-                <div className="space-y-2 text-gray-600">
-                  <p className="flex items-center">
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    {job.companyName}
-                  </p>
-                  <p className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Deadline: {new Date(job.deadline).toLocaleDateString()}
-                  </p>
-                </div>
-                <p className="mt-4 text-gray-700 line-clamp-3">{job.desc}</p>
-              </div>
-            ))
-          ) : (
-            <div className="rounded-lg text-gray-600">Jobs not posted yet</div>
-          )}
-        </div>
-  
-        {totalPages > 1 && (
-          <div className="border-t p-4 flex justify-between items-center">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 rounded-lg ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-            >
-              Previous
-            </button>
-            <div className="text-gray-600">
-              Page {currentPage} of {totalPages}
+      </div>
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {currentJobs.map((job) => (
+          <div key={job._id} className="bg-gray-50 rounded-lg p-6 relative">
+            <div className="absolute top-4 right-4 flex space-x-2">
+              <button
+                onClick={() => onEdit(job)}
+                className="p-2 hover:bg-gray-200 rounded-full"
+              >
+                <Edit className="w-5 h-5 text-blue-600" />
+              </button>
+              <button
+                onClick={() => onDelete(job._id)}
+                className="p-2 hover:bg-gray-200 rounded-full"
+              >
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </button>
             </div>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 rounded-lg ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-            >
-              Next
-            </button>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {job.jobRole}
+            </h3>
+            <div className="space-y-2 text-gray-600">
+              <p className="flex items-center">
+                <Briefcase className="w-4 h-4 mr-2" />
+                {job.companyName}
+              </p>
+              <p className="flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                Deadline: {new Date(job.deadline).toLocaleDateString()}
+              </p>
+            </div>
+            <p className="mt-4 text-gray-700 line-clamp-3">{job.desc}</p>
+          </div>
+        ))}
+
+        {currentJobs.length === 0 && (
+          <div className=" rounded-lg text-gray-600">
+            jobs not posted yet
           </div>
         )}
       </div>
-    );
-  };
-  
+
+
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="border-t p-4 flex justify-between items-center">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-lg ${currentPage === 1
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+          >
+            Previous
+          </button>
+
+          <div className="text-gray-600">
+            Page {currentPage} of {totalPages}
+          </div>
+
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-lg ${currentPage === totalPages
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Component for Recruiter Info Card
 const RecruiterInfoCard = ({ recruiterInfo }) => (
