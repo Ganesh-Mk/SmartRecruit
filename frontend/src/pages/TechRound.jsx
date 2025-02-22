@@ -228,9 +228,9 @@ const TechRound = () => {
       };
 
       const response = await axios.post(`${BACKEND_URL}/updateUser`, userData);
-
+      console.log(response);
+      
       // Handle HR email if user passed
-      if (response.data.techPass === true || response.data.techPass === "true") {
         const templateParams = {
           to_email: localStorage.getItem("technicalUserEmail"),
           jobRole: jobRole,
@@ -244,7 +244,7 @@ const TechRound = () => {
         } catch (emailError) {
           console.error("Failed to send HR email:", emailError);
         }
-      }
+
 
       alert("Technical round completed successfully. You will receive an email with further instructions.");
       window.location.reload(true);
