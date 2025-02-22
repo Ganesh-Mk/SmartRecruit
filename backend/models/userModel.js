@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("./communicationModel");
 
 const userSchema = new mongoose.Schema({
   name: { type: String },
@@ -54,6 +55,10 @@ const userSchema = new mongoose.Schema({
       },
     ],
     default: [],
+  },
+  communication: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Communication",
   },
 });
 

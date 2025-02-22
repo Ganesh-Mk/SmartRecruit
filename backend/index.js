@@ -78,7 +78,16 @@ const scanResume = require("./routes/scanResume");
 const getExcelFile = require("./routes/getExcelFile");
 const jobs = require("./routes/jobs");
 
+const addCommunication = require("./routes/addCommunication");
+const allCommunication = require("./routes/allCommunication");
+const getCommunication = require("./routes/getCommunication");
+
 // Use routes
+app.use(addCommunication);
+app.use(allCommunication);
+app.use(getCommunication);
+
+
 app.use(signup);
 app.use(login);
 app.use(addQuiz);
