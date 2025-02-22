@@ -275,6 +275,25 @@ const CandidateRejectionModal = ({ isOpen, onClose, candidate, onReject }) => {
             </div>
           </div>
 
+          {candidate.cheatImage && (
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <h4 className="text-lg font-semibold p-4 bg-gray-50 border-b">
+                Evidence Image
+              </h4>
+              <div className="p-4">
+                <img
+                  src={candidate.cheatImage}
+                  alt="Cheating Evidence"
+                  className="w-full h-auto rounded-lg"
+                  onError={(e) => {
+                    e.target.src = "/api/placeholder/640/360";
+                    e.target.alt = "Failed to load evidence image";
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {candidate.cheatComment && (
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4">
               <h4 className="text-lg font-semibold text-yellow-800 mb-2">
