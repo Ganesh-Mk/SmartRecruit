@@ -82,10 +82,18 @@ const addCommunication = require("./routes/addCommunication");
 const allCommunication = require("./routes/allCommunication");
 const getCommunication = require("./routes/getCommunication");
 
+const generateListenAndSpeak = require("./routes/generateListenAndSpeak");
+const generateReadAndSpeak = require("./routes/generateReadAndSpeak");
+const generateTopicAndSpeech = require("./routes/generateTopicAndSpeech");
+
 // Use routes
 app.use(addCommunication);
 app.use(allCommunication);
 app.use(getCommunication);
+
+app.use(generateListenAndSpeak);
+app.use(generateReadAndSpeak);
+app.use(generateTopicAndSpeech);
 
 
 app.use(signup);

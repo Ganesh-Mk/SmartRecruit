@@ -215,13 +215,8 @@ export default function AptitudeInfo() {
       const isTechnical = localStorage.getItem("technical");
       const isHr = localStorage.getItem("hrRound");
 
-      if (isTechnical === "true") {
-        navigate("/technicalInfo");
-      } else if (isHr === "true") {
-        navigate("/hrInfo");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/communicationInfo");
+
 
       const quizResponse = await axios.post(`${BACKEND_URL}/addQuiz`, {
         questions: selectedQuizzes.map((quiz) => ({

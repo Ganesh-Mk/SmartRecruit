@@ -21,6 +21,7 @@ import JobPosting from "./pages/JobPosting";
 import JobApplication from "./pages/JobApplication";
 import Navbar from "./components/Navbar";
 import CommunicationRound from "./pages/CommunicationRound";
+import CommunicationInfo from "./pages/CommunicationInfo";
 
 const App = () => {
   return (
@@ -46,6 +47,7 @@ const App = () => {
         <Route path="/chat" element={<Chat />} />
         <Route path="/jobApplication/:jobId" element={<JobApplication />} />
         <Route path="/communicationRound" element={<CommunicationRound />} />
+        <Route path="/communicationInfo" element={<CommunicationInfo />} />
         <Route path="/jobPosting" element={<JobPosting />} />
       </Routes>
     </Router>

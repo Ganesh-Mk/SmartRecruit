@@ -73,9 +73,8 @@ const candidateDetails = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={`mt-1 p-3 w-full border rounded-md ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`mt-1 p-3 w-full border rounded-md ${errors.name ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Enter your name"
             />
             {errors.name && (
@@ -97,9 +96,8 @@ const candidateDetails = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`mt-1 p-3 w-full border rounded-md ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`mt-1 p-3 w-full border rounded-md ${errors.email ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Enter your email"
             />
             {errors.email && (
