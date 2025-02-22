@@ -5,6 +5,7 @@ import axios from "axios";
 const RoundSelection = () => {
   const [selectedRounds, setSelectedRounds] = useState({
     aptitude: true,
+    communication: true,
     technical: true,
     hrRound: true,
   });
@@ -15,6 +16,7 @@ const RoundSelection = () => {
   const [roundDurations, setRoundDurations] = useState({
     aptitude: "30", // Default duration
     technical: "60", // Default duration
+    communication: "60",
     hrRound: "60", // Default duration
   });
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -156,6 +158,45 @@ const RoundSelection = () => {
                   value={roundDurations.aptitude}
                   onChange={(e) =>
                     handleDurationChange("aptitude", e.target.value)
+                  }
+                  className="mt-1 bg-gray-200 p-2 border rounded-md w-24"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Communication Round */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-4">
+              <input
+                type="checkbox"
+                id="aptitude"
+                checked={selectedRounds.communication}
+                onChange={() => handleRoundChange("aptitude")}
+                className="w-5 h-5 border-2 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+              <label
+                htmlFor="aptitude"
+                className="text-xl font-medium text-gray-800 cursor-pointer"
+              >
+               Communication Round
+              </label>
+            </div>
+            {selectedRounds.communication && (
+              <div className="ml-8">
+                <label
+                  htmlFor="aptitudeTime"
+                  className="block text-gray-600 text-sm font-medium"
+                >
+                  Duration (in minutes):
+                </label>
+                <input
+                  type="number"
+                  id="aptitudeTime"
+                  step="5"
+                  value={roundDurations.communication}
+                  onChange={(e) =>
+                    handleDurationChange("communication", e.target.value)
                   }
                   className="mt-1 bg-gray-200 p-2 border rounded-md w-24"
                 />

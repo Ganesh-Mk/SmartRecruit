@@ -367,7 +367,7 @@ const QuizComponent = () => {
         user_id: localStorage.getItem("userId"),
         hr_email: hremail,
         roundName: "Technical Round",
-        tech_link: `${FRONTEND_URL}/techRound`,
+        tech_link: `${FRONTEND_URL}/communicationRound`,
         company_name: companyName,
         to_email: userEmail,
         recipient_address: email,
