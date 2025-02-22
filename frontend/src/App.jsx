@@ -20,6 +20,7 @@ import JobPosting from "./pages/JobPosting";
 
 import JobApplication from "./pages/JobApplication";
 import Navbar from "./components/Navbar";
+import CommunicationRound from "./pages/CommunicationRound";
 
 const App = () => {
   return (
@@ -44,7 +45,7 @@ const App = () => {
         <Route path="/hrRound/:id" element={<HRRound />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/jobApplication/:jobId" element={<JobApplication />} />
-        <Route path="/crRound" element={<CRRound />} />
+        <Route path="/communicationRound" element={<CommunicationRound />} />
         <Route path="/jobPosting" element={<JobPosting />} />
       </Routes>
     </Router>
