@@ -47,24 +47,31 @@ const QuizComponent = () => {
 
   const cheatingDetecedByUser = async () => {
     try {
-      console.log("Cheating detected by user");
-      console.log("user: ", userid);
-      console.log("cheatComment: ", cheatComment);
+      const screenshotData = takeScreenshot(); // Returns base64 string
 
-      const response = await axios.post(`${BACKEND_URL}/cheatingDetected`, {
-        userId: userid,
-        email: email,
-        comment: cheatComment || "No comment provided",
-        cheatImage: "image 1", // Replace with actual image data if available
+      // Convert base64 to blob
+      const base64Response = await fetch(screenshotData);
+      const blob = await base64Response.blob();
+
+      const formData = new FormData();
+      formData.append("userId", userid);
+      formData.append("email", email);
+      formData.append("comment", cheatComment || "No comment provided");
+      formData.append("cheatImage", blob, "screenshot.png"); // Append as file with filename
+
+      const response = await axios.post(`${BACKEND_URL}/cheatingDetected`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       console.log("Cheating response: ", response.data);
-      // Optional: Reload the page to reflect updates
-      // window.location.reload(true);
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error sending cheating email:", error);
     }
   };
+
 
   useEffect(() => {
     // Function to handle visibility change
@@ -408,11 +415,10 @@ const QuizComponent = () => {
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.name
-                ? "border-red-500 focus:ring-red-300"
-                : "border-gray-300 focus:ring-blue-300"
-            }`}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.name
+              ? "border-red-500 focus:ring-red-300"
+              : "border-gray-300 focus:ring-blue-300"
+              }`}
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -425,11 +431,10 @@ const QuizComponent = () => {
             placeholder="Secret Key"
             value={userid}
             onChange={(e) => setuserid(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.name
-                ? "border-red-500 focus:ring-red-300"
-                : "border-gray-300 focus:ring-blue-300"
-            }`}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.name
+              ? "border-red-500 focus:ring-red-300"
+              : "border-gray-300 focus:ring-blue-300"
+              }`}
           />
           {errors.userid && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -442,11 +447,10 @@ const QuizComponent = () => {
             placeholder="Your Email"
             value={email}
             onChange={(e) => setemail(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.email
-                ? "border-red-500 focus:ring-red-300"
-                : "border-gray-300 focus:ring-blue-300"
-            }`}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.email
+              ? "border-red-500 focus:ring-red-300"
+              : "border-gray-300 focus:ring-blue-300"
+              }`}
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -588,11 +592,10 @@ const QuizComponent = () => {
                   <button
                     key={option}
                     onClick={() => handleAnswerSelect(index, option)}
-                    className={`py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none ${
-                      selectedAnswers[index] === option
-                        ? "bg-blue-600 text-white shadow-lg"
-                        : "bg-white text-gray-800 border border-gray-300 hover:bg-blue-100"
-                    }`}
+                    className={`py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none ${selectedAnswers[index] === option
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "bg-white text-gray-800 border border-gray-300 hover:bg-blue-100"
+                      }`}
                   >
                     {option.toUpperCase()}: {quiz[option]}
                   </button>
