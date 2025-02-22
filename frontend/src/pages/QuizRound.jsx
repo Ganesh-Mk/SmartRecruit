@@ -332,6 +332,22 @@ const QuizComponent = () => {
         `User's passing marks: ${passingMarks}, Your score: ${score}`
       );
 
+      await axios.post(`${BACKEND_URL}/addScore`, {
+        userId,
+        score,
+        candidateEmail: email,
+        roundName: "aptitude"
+      })
+
+      .then(data => {
+        console.log("score is stored");
+        
+        console.log('Data received:', data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error); 
+      });
+
       await axios.post(`${BACKEND_URL}/updateUser`, {
         userId,
         userEmail,

@@ -5,6 +5,7 @@ import TopicAndSpeakRound from "../components/TopicAndSpeakRound";
 import CommunicationLogin from "../components/CommunicationLogin";
 import sendEmailComm from "../components/CommunicationEmail";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CommunicationRound = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -14,13 +15,13 @@ const CommunicationRound = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const userId = localStorage.getItem("userId");
   const [scores, setScores] = useState({
-    round1: null,
-    round2: null,
-    round3: null,
+    round1: 0,
+    round2: 0,
+    round3: 0,
   });
-  const navigate = useNavigate()
+  const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRoundData();
@@ -56,27 +57,93 @@ const CommunicationRound = () => {
   };
 
   const handleRoundComplete = (roundNumber, score) => {
+    // Ensure score is a valid number
+    const validScore = Number.isNaN(score) ? 0 : Math.max(0, Math.min(100, score));
+    
     setScores((prev) => ({
       ...prev,
-      [`round${roundNumber}`]: score,
+      [`round${roundNumber}`]: validScore,
     }));
+    
     if (roundNumber < 3) {
       setCurrentRound(roundNumber + 1);
     }
   };
 
-  const handleSubmit = async () => {
-    const templateParams = {
-      companyName: localStorage.getItem('name'),
-      to_email: localStorage.getItem('candidateEmail'), // Send email to the candidate's email
-    };
+  const calculateTotalScore = () => {
+    const { round1, round2, round3 } = scores;
+    // Ensure all scores are valid numbers
+    const validScores = [round1, round2, round3].map(score => 
+      Number.isNaN(score) ? 0 : Math.max(0, Math.min(100, score))
+    );
+    
+    // Calculate average and round to nearest integer
+    const average = validScores.reduce((a, b) => a + b, 0) / validScores.length;
+    return Math.round(average);
+  };
 
+  const handleSubmit = async () => {
     try {
-      await sendEmailComm(templateParams); // Attempt to send the email
-      alert('You have completed now, please leve this tab')
-      console.log(`Email sent successfully to ${email}`);
+      // Check if all rounds are completed
+      if (currentRound < 3) {
+        alert("Please complete all rounds before submitting.");
+        return;
+      }
+
+      const totalScore = calculateTotalScore();
+      console.log("Scores breakdown:", scores);
+      console.log("Total Score:", totalScore);
+
+      // Validate required data
+      const userId = localStorage.getItem('userId');
+      const candidateEmail = localStorage.getItem('candidateEmail');
+      
+      if (!userId || !candidateEmail) {
+        throw new Error("Missing required user information");
+      }
+
+      // Prepare payload
+      const payload = {
+        userId,
+        score: totalScore,
+        candidateEmail,
+        roundName: "communication",
+        roundScores: {
+          readAndSpeak: scores.round1,
+          listenAndSpeak: scores.round2,
+          topicAndSpeak: scores.round3
+        }
+      };
+
+      // Send score to backend
+      const scoreResponse = await axios.post(`${BACKEND_URL}/addScore`, payload);
+
+      if (scoreResponse.data.success) {
+        // Prepare email template params
+        const templateParams = {
+          companyName: localStorage.getItem('name'),
+          to_email: candidateEmail,
+          score: totalScore,
+          roundScores: {
+            readAndSpeak: scores.round1,
+            listenAndSpeak: scores.round2,
+            topicAndSpeak: scores.round3
+          }
+        };
+
+        // Send email
+        await sendEmailComm(templateParams);
+        
+        setShowCompletionModal(true);
+        setTimeout(() => {
+          alert('Assessment completed successfully. You may now close this tab.');
+        }, 500);
+      } else {
+        throw new Error(scoreResponse.data.message || "Failed to submit score");
+      }
     } catch (error) {
-      console.error(`Error sending email to ${email}:`, error);
+      console.error("Error during submission:", error);
+      alert(`Submission error: ${error.message || "Please try again"}`);
     }
   };
 
@@ -135,12 +202,13 @@ const CommunicationRound = () => {
             {[1, 2, 3].map((round) => (
               <div key={round} className="flex flex-col items-center">
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center ${currentRound === round
+                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    currentRound === round
                       ? "bg-indigo-600 text-white"
                       : currentRound > round
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
                 >
                   {round}
                 </div>
@@ -148,8 +216,8 @@ const CommunicationRound = () => {
                   {round === 1
                     ? "Read & Speak"
                     : round === 2
-                      ? "Listen & Speak"
-                      : "Topic & Speak"}
+                    ? "Listen & Speak"
+                    : "Topic & Speak"}
                 </span>
               </div>
             ))}
@@ -175,9 +243,11 @@ const CommunicationRound = () => {
           />
         )}
 
-        {/* {scores.round3 !== null && (
+        {scores.round3 !== 0 && (
           <div className="mt-8 bg-white rounded-xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">Assessment Complete!</h2>
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
+              Assessment Complete!
+            </h2>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                 <span>Read & Speak Score:</span>
@@ -194,7 +264,7 @@ const CommunicationRound = () => {
               <div className="flex justify-between items-center p-4 bg-indigo-100 rounded-lg">
                 <span className="font-bold">Overall Score:</span>
                 <span className="font-bold text-indigo-600">
-                  {Math.round((scores.round1 + scores.round2 + scores.round3) / 3)}%
+                  {calculateTotalScore()}%
                 </span>
               </div>
               <button
@@ -205,18 +275,8 @@ const CommunicationRound = () => {
               </button>
             </div>
           </div>
-        )} }
+        )}
 
-        
-
-        {/* Completion Modal */}
-
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg mt-4 transition-colors duration-200"
-        >
-          Submit Assessment
-        </button>
         {showCompletionModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
@@ -225,8 +285,8 @@ const CommunicationRound = () => {
                   Assessment Completed!
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  You have successfully completed all rounds of the
-                  Communication Assessment. You may now leave this page.
+                  You have successfully completed all rounds of the Communication
+                  Assessment. You may now leave this page.
                 </p>
               </div>
             </div>

@@ -43,7 +43,6 @@ const executeCode = async (language, sourceCode) => {
 
 let isPasteAllowed = true;
 
-
 const TechRound = () => {
   const [codeStore, setCodeStore] = useState({});
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
@@ -64,7 +63,9 @@ const TechRound = () => {
   const [loading, setLoading] = useState(true);
   const [jobRole, setjobRole] = useState("");
   const [companyName, setcompanyName] = useState("");
-  const [techTiming, setTechTiming] = useState(localStorage.getItem("techTime") || 0);
+  const [techTiming, setTechTiming] = useState(
+    localStorage.getItem("techTime") || 0
+  );
   const [remainingTime, setRemainingTime] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [passingMarks, setpassingMarks] = useState("");
@@ -158,10 +159,10 @@ const TechRound = () => {
   // Timer effect
   useEffect(() => {
     let timerInterval;
-    
+
     if (isTimerRunning && remainingTime > 0) {
       timerInterval = setInterval(() => {
-        setRemainingTime(prev => {
+        setRemainingTime((prev) => {
           if (prev <= 1) {
             clearInterval(timerInterval);
             setIsTimerRunning(false);
@@ -191,8 +192,10 @@ const TechRound = () => {
     const fetchProblems = async () => {
       try {
         const response = await axios.get(`${BACKEND_URL}/getTech`, {
-          params: { userId: localStorage.getItem("technicalUserId") },
-          headers: { "Content-Type": "application/json" },
+          params: {
+            userId: userId,
+            headers: { "Content-Type": "application/json" },
+          },
         });
         const validProblems = response.data.techEntries.filter(
           (problem) => problem && typeof problem === "object" && problem.title
@@ -224,31 +227,47 @@ const TechRound = () => {
       const userData = {
         userId: localStorage.getItem("technicalUserId"),
         userEmail: localStorage.getItem("technicalUserEmail"),
-        technicalScore: currentlyScored
+        technicalScore: currentlyScored,
       };
+
+      const res = await axios
+        .post(`${BACKEND_URL}/addScore`, {
+          userId,
+          candidateEmail: email,
+          roundName: "technical",
+          score: currentlyScored,
+        })
+
+        .then((res) => {
+          console.log("Technical Score Stored");
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 
       const response = await axios.post(`${BACKEND_URL}/updateUser`, userData);
       console.log(response);
-      
+
       // Handle HR email if user passed
-        const templateParams = {
-          to_email: localStorage.getItem("technicalUserEmail"),
-          jobRole: jobRole,
-          linkForNextRound: "smartrecruit/hrRoundEntrance",
-          companyName: companyName,
-        };
+      const templateParams = {
+        to_email: localStorage.getItem("technicalUserEmail"),
+        jobRole: jobRole,
+        linkForNextRound: "smartrecruit/hrRoundEntrance",
+        companyName: companyName,
+      };
 
-        try {
-          await sendHREmail(templateParams);
-          console.log("HR email sent successfully");
-        } catch (emailError) {
-          console.error("Failed to send HR email:", emailError);
-        }
+      try {
+        await sendHREmail(templateParams);
+        console.log("HR email sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send HR email:", emailError);
+      }
 
-
-      alert("Technical round completed successfully. You will receive an email with further instructions.");
+      alert(
+        "Technical round completed successfully. You will receive an email with further instructions."
+      );
       window.location.reload(true);
-
     } catch (error) {
       console.error("Error during end session:", error);
       alert("An error occurred while ending the session. Please try again.");
@@ -265,7 +284,9 @@ const TechRound = () => {
           return;
         }
 
-        const response = await axios.get(`${BACKEND_URL}/getUserInfo/${userId}`);
+        const response = await axios.get(
+          `${BACKEND_URL}/getUserInfo/${userId}`
+        );
         const userData = response.data;
 
         setTechTiming(userData.techTime || 0);
@@ -274,7 +295,6 @@ const TechRound = () => {
         setjobRole(userData.jobRole);
         setcompanyName(userData.companyName);
         setpassingMarks(userData.technicalPassingMarks);
-
       } catch (error) {
         console.error("Error initializing user data:", error);
         alert("Failed to initialize user data. Please refresh the page.");
@@ -678,7 +698,7 @@ const TechRound = () => {
 
     try {
       const currentProblem = problems[currentProblemIndex];
-      
+
       const response = await axios.post(`${BACKEND_URL}/checkTechSolution`, {
         title: currentProblem.title,
         desc: currentProblem.desc,
@@ -687,11 +707,12 @@ const TechRound = () => {
 
       // Update score only if solution is correct
       if (response.data.cleanedResponse.success) {
-        setCurrentlyScored(prev => prev + 1);
+        setCurrentlyScored((prev) => prev + 1);
       }
 
-      setOutput(response.data.cleanedResponse.summary || "Evaluation successful");
-      
+      setOutput(
+        response.data.cleanedResponse.summary || "Evaluation successful"
+      );
     } catch (error) {
       console.error("Error during submission:", error);
       setError("An error occurred while evaluating your code");
