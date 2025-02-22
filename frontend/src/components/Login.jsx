@@ -36,6 +36,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-10" />
 
       <div className="w-full max-w-md mx-4 overflow-hidden rounded-lg shadow-2xl bg-white/95 backdrop-blur-sm">
         {/* Header */}
