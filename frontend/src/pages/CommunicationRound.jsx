@@ -66,9 +66,8 @@ const CommunicationRound = () => {
   };
 
   const handleSubmit = async () => {
-    console.log('asadasdadaidadadaid')
     const templateParams = {
-      companyName : localStorage.getItem('name'),
+      companyName: localStorage.getItem('name'),
       to_email: localStorage.getItem('candidateEmail'), // Send email to the candidate's email
     };
 
@@ -136,13 +135,12 @@ const CommunicationRound = () => {
             {[1, 2, 3].map((round) => (
               <div key={round} className="flex flex-col items-center">
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    currentRound === round
+                  className={`w-12 h-12 rounded-full flex items-center justify-center ${currentRound === round
                       ? "bg-indigo-600 text-white"
                       : currentRound > round
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 text-gray-600"
-                  }`}
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
                 >
                   {round}
                 </div>
@@ -150,8 +148,8 @@ const CommunicationRound = () => {
                   {round === 1
                     ? "Read & Speak"
                     : round === 2
-                    ? "Listen & Speak"
-                    : "Topic & Speak"}
+                      ? "Listen & Speak"
+                      : "Topic & Speak"}
                 </span>
               </div>
             ))}

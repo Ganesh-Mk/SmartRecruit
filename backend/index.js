@@ -85,8 +85,12 @@ const getCommunication = require("./routes/getCommunication");
 const generateListenAndSpeak = require("./routes/generateListenAndSpeak");
 const generateReadAndSpeak = require("./routes/generateReadAndSpeak");
 const generateTopicAndSpeech = require("./routes/generateTopicAndSpeech");
+const allScores = require("./routes/allScores");
+const addScore = require("./routes/addScore");
 
 // Use routes
+app.use(allScores);
+app.use(addScore);
 app.use(addCommunication);
 app.use(allCommunication);
 app.use(getCommunication);
