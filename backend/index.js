@@ -17,6 +17,20 @@ const signup = require("./routes/signup");
 const login = require("./routes/login");
 const root = require("./routes/root");
 
+// Jobs Routes
+const allJob = require("./routes/job/allJob");
+const createJob = require("./routes/job/createJob");
+const deleteJob = require("./routes/job/deleteJob");
+const updateJob = require("./routes/job/updateJob");
+const getJob = require("./routes/job/getJob");
+
+
+app.use(allJob);
+app.use(getJob);
+app.use(createJob);
+app.use(updateJob);
+app.use(deleteJob);
+
 app.use(root);
 app.use(signup);
 app.use(login);
