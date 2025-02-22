@@ -5,6 +5,8 @@ import Signup from "./components/Signup";
 import Navbar from "./components/Navbar";
 import AllJobsDisplay from "./pages/AllJobs";
 import Dashboard from "./pages/Dashboard"
+import JobApplication from "./pages/JobApplication";
+
 
 
 const App = () => {
@@ -17,6 +19,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/jobs" element={<AllJobsDisplay />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/jobApplication/:jobId" element={<JobApplication />} />
       </Routes>
     </Router>
   );
