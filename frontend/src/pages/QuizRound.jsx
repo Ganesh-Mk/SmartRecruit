@@ -346,14 +346,14 @@ const QuizComponent = () => {
         roundName: "aptitude"
       })
 
-      .then(data => {
-        console.log("score is stored");
-        
-        console.log('Data received:', data);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error); 
-      });
+        .then(data => {
+          console.log("score is stored");
+
+          console.log('Data received:', data);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
 
       await axios.post(`${BACKEND_URL}/updateUser`, {
         userId,
@@ -380,6 +380,7 @@ const QuizComponent = () => {
         console.error("Failed to send email:", emailError);
       }
 
+      setIsSubmittingQuiz(false)
       console.log(`Quiz completed! Your score: ${score}`);
 
       closeVideo();

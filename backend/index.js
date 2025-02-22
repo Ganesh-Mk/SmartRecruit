@@ -88,7 +88,6 @@ const generateTopicAndSpeech = require("./routes/generateTopicAndSpeech");
 const allScores = require("./routes/allScores");
 const addScore = require("./routes/addScore");
 
-// Use routes
 app.use(allScores);
 app.use(addScore);
 app.use(addCommunication);
