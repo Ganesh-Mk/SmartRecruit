@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import ReadAndSpeakRound from '../components/ReadAndSpeakRound';
-import ListenAndSpeakRound from '../components/ListenAndSpeakRound';
-import TopicAndSpeakRound from '../components/TopicAndSpeakRound';
-import CommunicationLogin from '../components/CommunicationLogin';
+import React, { useState, useEffect } from "react";
+import ReadAndSpeakRound from "../components/ReadAndSpeakRound";
+import ListenAndSpeakRound from "../components/ListenAndSpeakRound";
+import TopicAndSpeakRound from "../components/TopicAndSpeakRound";
+import CommunicationLogin from "../components/CommunicationLogin";
+import sendEmailComm from "../components/CommunicationEmail";
+import { useNavigate } from "react-router-dom";
 
 const CommunicationRound = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -12,19 +14,20 @@ const CommunicationRound = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem("userId");
   const [scores, setScores] = useState({
     round1: null,
     round2: null,
-    round3: null
+    round3: null,
   });
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchRoundData();
   }, []);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (userId) {
       setIsLoggedIn(true);
     }
@@ -39,23 +42,23 @@ const CommunicationRound = () => {
       const result = await response.json();
 
       if (!result.success) {
-        throw new Error('Failed to fetch round data');
+        throw new Error("Failed to fetch round data");
       }
 
       setRoundData(result.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching round data:', error);
-      setError('Failed to load assessment data. Please try again.');
-      localStorage.removeItem('userId');
+      console.error("Error fetching round data:", error);
+      setError("Failed to load assessment data. Please try again.");
+      localStorage.removeItem("userId");
       setLoading(false);
     }
   };
 
   const handleRoundComplete = (roundNumber, score) => {
-    setScores(prev => ({
+    setScores((prev) => ({
       ...prev,
-      [`round${roundNumber}`]: score
+      [`round${roundNumber}`]: score,
     }));
     if (roundNumber < 3) {
       setCurrentRound(roundNumber + 1);
@@ -63,11 +66,18 @@ const CommunicationRound = () => {
   };
 
   const handleSubmit = async () => {
+    console.log('asadasdadaidadadaid')
+    const templateParams = {
+      companyName : localStorage.getItem('name'),
+      to_email: localStorage.getItem('candidateEmail'), // Send email to the candidate's email
+    };
+
     try {
-      // Add your API call here if needed
-      setShowCompletionModal(true);
+      await sendEmailComm(templateParams); // Attempt to send the email
+      alert('You have completed now, please leve this tab')
+      console.log(`Email sent successfully to ${email}`);
     } catch (error) {
-      console.error('Error submitting scores:', error);
+      console.error(`Error sending email to ${email}:`, error);
     }
   };
 
@@ -88,8 +98,18 @@ const CommunicationRound = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md">
           <div className="text-red-600 text-center mb-4">
-            <svg className="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-16 h-16 mx-auto mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <h2 className="text-xl font-bold mb-2">Error Loading Data</h2>
             <p className="text-gray-600">{error}</p>
@@ -109,20 +129,29 @@ const CommunicationRound = () => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Communication Assessment</h1>
+          <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">
+            Communication Assessment
+          </h1>
           <div className="flex justify-between items-center bg-white rounded-xl p-6 shadow-lg">
             {[1, 2, 3].map((round) => (
               <div key={round} className="flex flex-col items-center">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${currentRound === round
-                  ? 'bg-indigo-600 text-white'
-                  : currentRound > round
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                  }`}>
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    currentRound === round
+                      ? "bg-indigo-600 text-white"
+                      : currentRound > round
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
                   {round}
                 </div>
                 <span className="mt-2 text-sm font-medium text-gray-600">
-                  {round === 1 ? 'Read & Speak' : round === 2 ? 'Listen & Speak' : 'Topic & Speak'}
+                  {round === 1
+                    ? "Read & Speak"
+                    : round === 2
+                    ? "Listen & Speak"
+                    : "Topic & Speak"}
                 </span>
               </div>
             ))}
@@ -178,9 +207,18 @@ const CommunicationRound = () => {
               </button>
             </div>
           </div>
-        )} */}
+        )} }
+
+        
 
         {/* Completion Modal */}
+
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg mt-4 transition-colors duration-200"
+        >
+          Submit Assessment
+        </button>
         {showCompletionModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
@@ -189,8 +227,8 @@ const CommunicationRound = () => {
                   Assessment Completed!
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  You have successfully completed all rounds of the Communication Assessment.
-                  You may now leave this page.
+                  You have successfully completed all rounds of the
+                  Communication Assessment. You may now leave this page.
                 </p>
               </div>
             </div>
