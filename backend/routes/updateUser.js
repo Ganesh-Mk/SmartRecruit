@@ -30,7 +30,12 @@ router.post("/updateUser", async (req, res) => {
     technicalScore,
   } = req.body;
 
-  console.log("Data of technical round came to backend : ", userId, userEmail, technicalScore);
+  console.log(
+    "Data of technical round came to backend : ",
+    userId,
+    userEmail,
+    technicalScore
+  );
 
   let techPass = false;
   try {
@@ -55,28 +60,16 @@ router.post("/updateUser", async (req, res) => {
 
     // Check aptitude results
     if (score !== undefined) {
-      if (score >= user.aptitudePassingMarks) {
-        if (!user.aptitudePassesCandidates.includes(userEmail)) {
-          user.aptitudePassesCandidates.push(userEmail);
-        }
-      } else {
-        if (!user.aptitudeFailedCandidates.includes(userEmail)) {
-          user.aptitudeFailedCandidates.push(userEmail);
-        }
+      if (!user.aptitudePassesCandidates.includes(userEmail)) {
+        user.aptitudePassesCandidates.push(userEmail);
       }
     }
 
     // Check technical results if technicalScore is provided
     if (technicalScore !== undefined) {
-      if (technicalScore >= user.technicalPassingMarks) {
-        if (!user.techPassesCandidates.includes(userEmail)) {
-          user.techPassesCandidates.push(userEmail);
-          techPass = true;
-        }
-      } else {
-        if (!user.techFailedCandidates.includes(userEmail)) {
-          user.techFailedCandidates.push(userEmail);
-        }
+      if (!user.techPassesCandidates.includes(userEmail)) {
+        user.techPassesCandidates.push(userEmail);
+        techPass = true;
       }
     }
 

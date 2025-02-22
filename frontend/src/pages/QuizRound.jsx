@@ -14,7 +14,7 @@ const QuizComponent = () => {
   const [jobrole, setJobrole] = useState("");
   const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
   const [hremail, setHremail] = useState("");
-  const [currentStage, setCurrentStage] = useState('input');
+  const [currentStage, setCurrentStage] = useState("input");
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
@@ -106,7 +106,7 @@ const QuizComponent = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
 
-      tracks.forEach(track => track.stop());
+      tracks.forEach((track) => track.stop());
 
       videoRef.current.srcObject = null;
     }
@@ -284,7 +284,7 @@ const QuizComponent = () => {
       });
       console.log("Quiz Responses : ", response);
       setExistingQuizzes(response.data);
-      setCurrentStage('quiz');
+      setCurrentStage("quiz");
       setSubmitted(true);
       setLoading(false);
 
@@ -338,46 +338,29 @@ const QuizComponent = () => {
         score,
       });
 
-      if (score >= passingMarks) {
-        const templateParams = {
-          subject: "Congratulations! You're Invited to the Technical Round",
-          candidate_name: name,
-          user_id: localStorage.getItem("userId"),
-          hr_email: hremail,
-          roundName: "Technical Round",
-          tech_link: `${FRONTEND_URL}/techRound`,
-          company_name: companyName,
-          to_email: userEmail,
-          recipient_address: email,
-        };
+      const templateParams = {
+        subject: "Congratulations! You're Invited to the Technical Round",
+        candidate_name: name,
+        user_id: localStorage.getItem("userId"),
+        hr_email: hremail,
+        roundName: "Technical Round",
+        tech_link: `${FRONTEND_URL}/techRound`,
+        company_name: companyName,
+        to_email: userEmail,
+        recipient_address: email,
+      };
 
-        try {
-          await sendProgressEmail(templateParams);
-          console.log("Email sent successfully!");
-        } catch (emailError) {
-          console.error("Failed to send email:", emailError);
-        }
-      } else {
-        const templateParams = {
-          job_role: jobrole,
-          candidate_name: name,
-          round_name: "Aptitude Round",
-          company_name: companyName,
-          to_email: userEmail,
-        };
-
-        try {
-          await sendRejectionEmail(templateParams);
-          console.log("Email sent successfully!");
-        } catch (emailError) {
-          console.error("Failed to send email:", emailError);
-        }
+      try {
+        await sendProgressEmail(templateParams);
+        console.log("Email sent successfully!");
+      } catch (emailError) {
+        console.error("Failed to send email:", emailError);
       }
 
       console.log(`Quiz completed! Your score: ${score}`);
 
       closeVideo();
-      setCurrentStage('completed');
+      setCurrentStage("completed");
       setSubmitted(true);
     } catch (error) {
       console.error("Error submitting quiz:", error);
@@ -409,10 +392,11 @@ const QuizComponent = () => {
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.name
-              ? "border-red-500 focus:ring-red-300"
-              : "border-gray-300 focus:ring-blue-300"
-              }`}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              errors.name
+                ? "border-red-500 focus:ring-red-300"
+                : "border-gray-300 focus:ring-blue-300"
+            }`}
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -425,10 +409,11 @@ const QuizComponent = () => {
             placeholder="Secret Key"
             value={userid}
             onChange={(e) => setuserid(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.name
-              ? "border-red-500 focus:ring-red-300"
-              : "border-gray-300 focus:ring-blue-300"
-              }`}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              errors.name
+                ? "border-red-500 focus:ring-red-300"
+                : "border-gray-300 focus:ring-blue-300"
+            }`}
           />
           {errors.userid && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -441,10 +426,11 @@ const QuizComponent = () => {
             placeholder="Your Email"
             value={email}
             onChange={(e) => setemail(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.email
-              ? "border-red-500 focus:ring-red-300"
-              : "border-gray-300 focus:ring-blue-300"
-              }`}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              errors.email
+                ? "border-red-500 focus:ring-red-300"
+                : "border-gray-300 focus:ring-blue-300"
+            }`}
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -542,9 +528,12 @@ const QuizComponent = () => {
 
   const renderCompleted = () => (
     <div className="w-full max-w-md mx-auto bg-white shadow-md rounded-lg p-6 text-center">
-      <h2 className="text-2xl font-bold mb-4 text-green-600">Quiz Completed!</h2>
+      <h2 className="text-2xl font-bold mb-4 text-green-600">
+        Quiz Completed!
+      </h2>
       <p className="text-gray-700 mb-4">
-        Thank you for completing the Aptitude round. We will update you through email soon.
+        Thank you for completing the Aptitude round. We will update you through
+        email soon.
       </p>
       <p className="text-gray-600">You can now close this window.</p>
     </div>
@@ -583,10 +572,11 @@ const QuizComponent = () => {
                   <button
                     key={option}
                     onClick={() => handleAnswerSelect(index, option)}
-                    className={`py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none ${selectedAnswers[index] === option
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "bg-white text-gray-800 border border-gray-300 hover:bg-blue-100"
-                      }`}
+                    className={`py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none ${
+                      selectedAnswers[index] === option
+                        ? "bg-blue-600 text-white shadow-lg"
+                        : "bg-white text-gray-800 border border-gray-300 hover:bg-blue-100"
+                    }`}
                   >
                     {option.toUpperCase()}: {quiz[option]}
                   </button>
@@ -609,17 +599,17 @@ const QuizComponent = () => {
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce" />
                   <div
                     className="w-2 h-2 bg-white rounded-full animate-bounce"
-                    style={{ animationDelay: '0.2s' }}
+                    style={{ animationDelay: "0.2s" }}
                   />
                   <div
                     className="w-2 h-2 bg-white rounded-full animate-bounce"
-                    style={{ animationDelay: '0.4s' }}
+                    style={{ animationDelay: "0.4s" }}
                   />
                 </div>
                 <span>Submitting Quiz...</span>
               </>
             ) : (
-              'Submit Quiz'
+              "Submit Quiz"
             )}
           </button>
         </>
@@ -655,7 +645,7 @@ const QuizComponent = () => {
   return (
     <div className="min-h-screen flex relative bg-gradient-to-br from-gray-100 to-gray-200 p-4">
       {/* Fixed Video Stream Container */}
-      {currentStage !== 'completed' && (
+      {currentStage !== "completed" && (
         <div className="fixed top-4 right-4 z-50 flex flex-col items-center">
           <div className="relative mr-4">
             <video
@@ -724,9 +714,9 @@ const QuizComponent = () => {
           </div>
         )}
 
-        {currentStage === 'input' && renderUserDetailsForm()}
-        {currentStage === 'quiz' && renderQuizzes()}
-        {currentStage === 'completed' && renderCompleted()}
+        {currentStage === "input" && renderUserDetailsForm()}
+        {currentStage === "quiz" && renderQuizzes()}
+        {currentStage === "completed" && renderCompleted()}
       </div>
 
       {showInstructionsModal && <InstructionsModal />}
