@@ -109,6 +109,8 @@ const CommunicationInfo = () => {
         body: JSON.stringify(allQuestions),
       });
 
+      
+
       const data = await response.json();
 
       if (data.success) {

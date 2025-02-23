@@ -72,6 +72,7 @@ const TechRound = () => {
   const [testCaseResults, setTestCaseResults] = useState([]);
   const [showCheatingModal, setShowCheatingModal] = useState(false);
   const [currentlyScored, setCurrentlyScored] = useState(0);
+  const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL
 
   // Login form handler (Previously in UserInfoDialog)
   const handleLoginSubmit = async (e) => {
@@ -251,9 +252,9 @@ const TechRound = () => {
 
       // Handle HR email if user passed
       const templateParams = {
-        to_email: localStorage.getItem("technicalUserEmail"),
+        to_email: email,
         jobRole: jobRole,
-        linkForNextRound: "smartrecruit/hrRoundEntrance",
+        linkForNextRound: `${FRONTEND_URL}/hrRoundEntrance`,
         companyName: companyName,
       };
 

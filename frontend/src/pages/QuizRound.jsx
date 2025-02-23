@@ -362,11 +362,11 @@ const QuizComponent = () => {
       });
 
       const templateParams = {
-        subject: "Congratulations! You're Invited to the Technical Round",
+        subject: "Congratulations! You're Invited to the Communication Round",
         candidate_name: name,
         user_id: localStorage.getItem("userId"),
         hr_email: hremail,
-        roundName: "Technical Round",
+        roundName: "Communication Round",
         tech_link: `${FRONTEND_URL}/communicationRound`,
         company_name: companyName,
         to_email: userEmail,

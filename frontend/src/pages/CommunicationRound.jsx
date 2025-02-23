@@ -22,6 +22,7 @@ const CommunicationRound = () => {
   });
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+  const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL
 
   useEffect(() => {
     fetchRoundData();
@@ -123,12 +124,7 @@ const CommunicationRound = () => {
         const templateParams = {
           companyName: localStorage.getItem('name'),
           to_email: candidateEmail,
-          score: totalScore,
-          roundScores: {
-            readAndSpeak: scores.round1,
-            listenAndSpeak: scores.round2,
-            topicAndSpeak: scores.round3
-          }
+          link: `${FRONTEND_URL}/techRound`
         };
 
         // Send email
