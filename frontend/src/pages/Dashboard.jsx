@@ -399,6 +399,9 @@ const RecruitmentDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [editingJob, setEditingJob] = useState(null);
   const userId = localStorage.getItem("userId");
+  const [candidateScores, setCandidateScores] = useState({});
+  const [isLoadingScores, setIsLoadingScores] = useState(false);
+  const [scoreError, setScoreError] = useState(null);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -560,13 +563,84 @@ const RecruitmentDashboard = () => {
     }
   };
 
+
+
+  useEffect(() => {
+    const fetchScores = async () => {
+      const userId = localStorage.getItem('userId')
+
+      setIsLoadingScores(true);
+      setScoreError(null);
+
+      console.log("fetch scores")
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/allScores/${userId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch scores');
+        }
+
+        console.log("data: ", data)
+
+        // Convert array of scores to object keyed by candidateEmail for easier lookup
+        const scoresMap = data.reduce((acc, scoreData) => {
+          acc[scoreData.candidateEmail] = {
+            aptitudeScore: scoreData.aptitudeScore,
+            communicationScore: scoreData.communicationScore,
+            technicalScore: scoreData.technicalScore
+          };
+          return acc;
+        }, {});
+
+        setCandidateScores(scoresMap);
+      } catch (error) {
+        console.error('Error fetching scores:', error);
+        setScoreError(error.message);
+      } finally {
+        setIsLoadingScores(false);
+      }
+    };
+
+    fetchScores();
+  }, [userId]);
+
+  const getScoreDisplay = (candidateEmail, roundType) => {
+    const candidateScore = candidateScores[candidateEmail];
+    if (!candidateScore) return "N/A";
+
+    const score = candidateScore[`${roundType}Score`];
+    if (score === undefined || score === null) return "N/A";
+    return score || 0;
+  };
+
+  const renderScoreBadge = (candidateEmail, roundType) => {
+    const candidateScore = candidateScores[candidateEmail];
+    if (!candidateScore) return null;
+
+    const score = candidateScore[`${roundType}Score`];
+    if (score === undefined || score === null) return null;
+
+    const bgColor = score >= 7 ? "bg-green-100" :
+      score >= 5 ? "bg-yellow-100" :
+        "bg-red-100";
+    const textColor = score >= 7 ? "text-green-800" :
+      score >= 5 ? "text-yellow-800" :
+        "text-red-800";
+
+    return (
+      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
+        {getScoreDisplay(candidateEmail, roundType)}
+      </span>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="container mx-auto max-w-7xl">
         {recruiterInfo && <RecruiterInfoCard recruiterInfo={recruiterInfo} />}
-
         <StatsCard candidates={candidates} />
-
         <JobListingCard
           jobs={jobs}
           onEdit={handleEditJob}
@@ -589,7 +663,6 @@ const RecruitmentDashboard = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="px-4 py-2 border rounded-lg w-80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-
               </div>
             </div>
           </div>
@@ -602,6 +675,7 @@ const RecruitmentDashboard = () => {
                     { key: "name", label: "Name" },
                     { key: "email", label: "Email" },
                     { key: "aptitudeStatus", label: "Aptitude Round" },
+                    { key: "communicationStatus", label: "Communication Round" },
                     { key: "techStatus", label: "Technical Round" },
                     { key: "hrStatus", label: "HR Round" },
                   ].map((column) => (
@@ -643,35 +717,32 @@ const RecruitmentDashboard = () => {
                       {candidate.name}
                     </td>
                     <td className="px-6 py-4">{candidate.email}</td>
-                    <td
-                      className={`px-6 py-4 ${getStatusColor(
-                        candidate.aptitudeStatus
-                      )}`}
-                    >
-                      <span className="inline-flex items-center">
-                        {candidate.aptitudeStatus}
-                        {candidate.aptitudeStatus === "Passed" && (
-                          <span className="ml-2 w-2 h-2 bg-green-500 rounded-full"></span>
-                        )}
-                        {candidate.aptitudeStatus === "Failed" && (
-                          <span className="ml-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                        )}
-                      </span>
+                    <td className={`px-6 py-4 ${getStatusColor(candidate.aptitudeStatus)}`}>
+                      <div className="flex items-center">
+                        <span className="inline-flex items-center">
+                          {candidate.aptitudeStatus}
+
+                        </span>
+                        {renderScoreBadge(candidate.email, 'aptitude')}
+                      </div>
                     </td>
-                    <td
-                      className={`px-6 py-4 ${getStatusColor(
-                        candidate.techStatus
-                      )}`}
-                    >
-                      <span className="inline-flex items-center">
-                        {candidate.techStatus}
-                        {candidate.techStatus === "Passed" && (
-                          <span className="ml-2 w-2 h-2 bg-green-500 rounded-full"></span>
-                        )}
-                        {candidate.techStatus === "Failed" && (
-                          <span className="ml-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                        )}
-                      </span>
+                    <td className={`px-6 py-4 ${getStatusColor(candidate.communicationStatus)}`}>
+                      <div className="flex items-center">
+                        <span className="inline-flex items-center">
+                          {getScoreDisplay(candidate.email, 'communication') > 0 ? "Completed" : "Pending"}
+
+                        </span>
+                        {renderScoreBadge(candidate.email, 'communication')}
+                      </div>
+                    </td>
+                    <td className={`px-6 py-4 ${getStatusColor(candidate.techStatus)}`}>
+                      <div className="flex items-center">
+                        <span className="inline-flex items-center">
+                          {candidate.techStatus}
+
+                        </span>
+                        {renderScoreBadge(candidate.email, 'technical')}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       {candidate.hrStatus === "Pending" ? (
@@ -737,7 +808,6 @@ const RecruitmentDashboard = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <EmailModal
         isOpen={emailModalOpen}
         onClose={() => setEmailModalOpen(false)}
@@ -751,7 +821,6 @@ const RecruitmentDashboard = () => {
         onReject={handleRejectCandidate}
       />
 
-      {/* Loading State UI */}
       {!recruiterInfo && (
         <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
           <div className="text-center">
@@ -761,7 +830,6 @@ const RecruitmentDashboard = () => {
         </div>
       )}
 
-      {/* Job Posting Modal */}
       <JobPostingModal
         isOpen={jobPostingModalOpen}
         onClose={() => {
